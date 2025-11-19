@@ -12,7 +12,7 @@ body,
 }
 body {
   margin: 0;
-  background-color: #f7f8fa;
+  background-color: #fff;
 }
 button {
   border: 0;
@@ -20,10 +20,9 @@ button {
   background: inherit;
 }
 .container {
-  max-width: 1140px;
-  margin: auto;
-  min-height: 100vh;
   display: flex;
-  align-items: flex-start;
   justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
 }
