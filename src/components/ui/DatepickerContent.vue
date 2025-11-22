@@ -2,66 +2,88 @@
   <section class="datepicker-content">
     <div class="datepicker-content__controls">
       <BaseButton
-        variant="secondary"
+        variant="outline"
         type="button"
         size="small"
         class="datepicker-content__controls-btn"
-        @click="toggleMonths"
+        @click="toggleView('months')"
       >
         <template #icon-right>
           <ArrowDownIcon :width="24" :height="24" />
         </template>
-        {{ selectedMonths || 'فروردین' }}
+        {{ selectedMonth || 'فروردین' }}
       </BaseButton>
 
       <BaseButton
-        variant="secondary"
+        variant="outline"
         type="button"
         size="small"
         class="datepicker-content__controls-btn"
+        @click="toggleView('years')"
       >
         <template #icon-right>
           <ArrowDownIcon :width="24" :height="24" />
         </template>
-        {{ toPersianNumbers(1404) }}
+        {{ toPersianNumbers(selectedYear || 1404) }}
       </BaseButton>
     </div>
 
-    <div class="datepicker-content__months" v-if="showMonths">
+    <template v-if="currentView === 'years'">
+      <div class="datepicker-content__years-controls">
+        <ArrowRightIcon :width="24" :height="24" />
+        <p>{{ toPersianNumbers(selectedYear || 1404) }}</p>
+        <ArrowLeftIcon :width="24" :height="24" />
+      </div>
+      <div class="datepicker-content__years">
+        <BaseButton
+          v-for="year in YEARS"
+          :key="year"
+          variant="secondary"
+          size="small"
+          :class="{ 'datepicker-content__years-btn--active': selectedYear === year }"
+          @click="selectYear(year)"
+        >
+          {{ year }}
+        </BaseButton>
+      </div>
+    </template>
+
+    <div v-if="currentView === 'months'" class="datepicker-content__months">
       <BaseButton
-        v-for="month in months"
+        v-for="month in MONTHS"
         :key="month"
         variant="secondary"
         size="small"
+        :class="{ 'datepicker-content__months-btn--active': selectedMonth === month }"
         @click="selectMonth(month)"
-        :class="{ 'datepicker-content__months-btn--active': selectedMonths === month }"
       >
         {{ month }}
       </BaseButton>
     </div>
 
-    <div class="datepicker-content__weekdays" v-if="!showMonths">
-      <span v-for="weekday in weekdays" :key="weekday" class="datepicker-content__weekday">
-        {{ weekday }}
-      </span>
-    </div>
-
-    <div class="datepicker-content__days" v-if="!showMonths">
-      <BaseButton
-        variant="outline"
-        v-for="day in calendarDays"
-        :key="day.id"
-        :class="[
-          'datepicker-content__day',
-          { 'datepicker-content__day--selected': day.isSelected },
-        ]"
-        :disabled="day.isDisabled"
-        @click="selectDay(day)"
-      >
-        {{ day.label }}
-        <span v-if="day.isToday" class="datepicker-content__day-today-text">امروز</span>
-      </BaseButton>
-    </div>
+    <template v-if="currentView === 'days'">
+      <div class="datepicker-content__weekdays">
+        <span v-for="weekday in WEEKDAYS" :key="weekday" class="datepicker-content__weekday">
+          {{ weekday }}
+        </span>
+      </div>
+      <div class="datepicker-content__days">
+        <BaseButton
+          v-for="day in calendarDays"
+          :key="day.id"
+          variant="outline"
+          :class="[
+            'datepicker-content__day',
+            { 'datepicker-content__day--selected': day.isSelected },
+          ]"
+          :disabled="day.isDisabled"
+          @click="selectDay(day)"
+        >
+          {{ day.label }}
+          <span v-if="day.isToday" class="datepicker-content__day-today-text">امروز</span>
+        </BaseButton>
+      </div>
+    </template>
   </section>
 </template>
 
@@ -70,12 +92,11 @@
   import { toPersianNumbers } from '@/utils/toPersianNumbers';
   import BaseButton from '../common/BaseButton.vue';
   import ArrowDownIcon from '../icons/ArrowDownIcon.vue';
+  import ArrowLeftIcon from '../icons/ArrowLeftIcon.vue';
+  import ArrowRightIcon from '../icons/ArrowRightIcon.vue';
 
-  const selectedMonths = ref(null);
-  const showMonths = ref(false);
-
-  const weekdays = ['شنبه', '۱شنبه', '۲شنبه', '۳شنبه', '۴شنبه', '۵شنبه', 'جمعه'];
-  const months = [
+  const WEEKDAYS = ['شنبه', '۱شنبه', '۲شنبه', '۳شنبه', '۴شنبه', '۵شنبه', 'جمعه'];
+  const MONTHS = [
     'فروردین',
     'اردیبهشت',
     'خرداد',
@@ -89,7 +110,24 @@
     'بهمن',
     'اسفند',
   ];
+  const YEARS = [
+    '1404',
+    '1400',
+    '1399',
+    '1398',
+    '1397',
+    '1396',
+    '1395',
+    '1394',
+    '1393',
+    '1392',
+    '1391',
+    '1390',
+  ];
 
+  const currentView = ref('days');
+  const selectedMonth = ref(null);
+  const selectedYear = ref(null);
   const calendarDays = ref(
     Array.from({ length: 31 }, (_, i) => ({
       id: i + 1,
@@ -101,13 +139,18 @@
     })),
   );
 
-  function toggleMonths() {
-    showMonths.value = !showMonths.value;
+  function toggleView(view) {
+    currentView.value = currentView.value === view ? 'days' : view;
   }
 
   function selectMonth(month) {
-    selectedMonths.value = month;
-    showMonths.value = false;
+    selectedMonth.value = month;
+    currentView.value = 'days';
+  }
+
+  function selectYear(year) {
+    selectedYear.value = year;
+    currentView.value = 'days';
   }
 
   function selectDay(day) {
@@ -131,7 +174,8 @@
       }
     }
 
-    &__months {
+    &__months,
+    &__years {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       row-gap: 12px;
@@ -141,6 +185,10 @@
         background-color: $primary-500;
         color: $white-100;
       }
+    }
+    &__years-controls {
+      @include customFlex(row, space-between, center);
+      cursor: pointer;
     }
 
     &__weekdays {
