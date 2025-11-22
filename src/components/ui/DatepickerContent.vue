@@ -11,7 +11,7 @@
         <template #icon-right>
           <ArrowDownIcon :width="24" :height="24" />
         </template>
-        {{ selectedMonth || 'فروردین' }}
+        {{ getMonthName(currentMonth) }}
       </BaseButton>
 
       <BaseButton
@@ -24,23 +24,23 @@
         <template #icon-right>
           <ArrowDownIcon :width="24" :height="24" />
         </template>
-        {{ toPersianNumbers(selectedYear || 1404) }}
+        {{ toPersianNumbers(currentYear) }}
       </BaseButton>
     </div>
 
     <template v-if="currentView === 'years'">
       <div class="datepicker-content__years-controls">
         <ArrowRightIcon :width="24" :height="24" />
-        <p>{{ toPersianNumbers(selectedYear || 1404) }}</p>
+        <p class="datepicker-content__years-controls-year">{{ toPersianNumbers(currentYear) }}</p>
         <ArrowLeftIcon :width="24" :height="24" />
       </div>
       <div class="datepicker-content__years">
         <BaseButton
-          v-for="year in YEARS"
+          v-for="year in yearRange"
           :key="year"
           variant="secondary"
           size="small"
-          :class="{ 'datepicker-content__years-btn--active': selectedYear === year }"
+          :class="{ 'datepicker-content__years-btn--active': currentYear === year }"
           @click="selectYear(year)"
         >
           {{ year }}
@@ -54,10 +54,10 @@
         :key="month"
         variant="secondary"
         size="small"
-        :class="{ 'datepicker-content__months-btn--active': selectedMonth === month }"
+        :class="{ 'datepicker-content__months-btn--active': currentMonth === month }"
         @click="selectMonth(month)"
       >
-        {{ month }}
+        {{ getMonthName(month) }}
       </BaseButton>
     </div>
 
@@ -75,6 +75,8 @@
           :class="[
             'datepicker-content__day',
             { 'datepicker-content__day--selected': day.isSelected },
+            { 'datepicker-content__day--prev-month': day.isPrevMonth },
+            { 'datepicker-content__day--next-month': day.isNextMonth },
           ]"
           :disabled="day.isDisabled"
           @click="selectDay(day)"
@@ -88,75 +90,31 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue';
-  import { toPersianNumbers } from '@/utils/toPersianNumbers';
   import BaseButton from '../common/BaseButton.vue';
   import ArrowDownIcon from '../icons/ArrowDownIcon.vue';
   import ArrowLeftIcon from '../icons/ArrowLeftIcon.vue';
   import ArrowRightIcon from '../icons/ArrowRightIcon.vue';
+  import { useDatePicker } from '@/composables/useDatePicker';
 
-  const WEEKDAYS = ['شنبه', '۱شنبه', '۲شنبه', '۳شنبه', '۴شنبه', '۵شنبه', 'جمعه'];
-  const MONTHS = [
-    'فروردین',
-    'اردیبهشت',
-    'خرداد',
-    'تیر',
-    'مرداد',
-    'شهریور',
-    'مهر',
-    'آبان',
-    'آذر',
-    'دی',
-    'بهمن',
-    'اسفند',
-  ];
-  const YEARS = [
-    '1404',
-    '1400',
-    '1399',
-    '1398',
-    '1397',
-    '1396',
-    '1395',
-    '1394',
-    '1393',
-    '1392',
-    '1391',
-    '1390',
-  ];
+  const props = defineProps({
+    locale: { type: String, default: 'fa' },
+  });
 
-  const currentView = ref('days');
-  const selectedMonth = ref(null);
-  const selectedYear = ref(null);
-  const calendarDays = ref(
-    Array.from({ length: 31 }, (_, i) => ({
-      id: i + 1,
-      label: toPersianNumbers(i + 1),
-      isSelected: false,
-      isToday: i + 1 === 15,
-      isDisabled: false,
-      isOtherMonth: false,
-    })),
-  );
-
-  function toggleView(view) {
-    currentView.value = currentView.value === view ? 'days' : view;
-  }
-
-  function selectMonth(month) {
-    selectedMonth.value = month;
-    currentView.value = 'days';
-  }
-
-  function selectYear(year) {
-    selectedYear.value = year;
-    currentView.value = 'days';
-  }
-
-  function selectDay(day) {
-    calendarDays.value.forEach((d) => (d.isSelected = false));
-    day.isSelected = true;
-  }
+  const {
+    currentView,
+    currentYear,
+    currentMonth,
+    WEEKDAYS,
+    MONTHS,
+    yearRange,
+    calendarDays,
+    toggleView,
+    selectMonth,
+    selectYear,
+    selectDay,
+    getMonthName,
+    toPersianNumbers,
+  } = useDatePicker({ locale: props.locale });
 </script>
 
 <style scoped lang="scss">
@@ -188,7 +146,12 @@
     }
     &__years-controls {
       @include customFlex(row, space-between, center);
+      height: 24px;
       cursor: pointer;
+      &-year {
+        font-weight: 400;
+        font-size: 12px;
+      }
     }
 
     &__weekdays {
@@ -235,6 +198,11 @@
         color: $white-100;
         width: 32px;
         height: 32px;
+      }
+
+      &--prev-month,
+      &--next-month {
+        color: $gray-300;
       }
 
       &-today-text {
