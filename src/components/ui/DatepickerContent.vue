@@ -1,6 +1,6 @@
 <template>
   <section class="datepicker-content">
-    <div class="datepicker-content__controls">
+    <div v-if="currentView !== 'years'" class="datepicker-content__controls">
       <BaseButton
         variant="outline"
         type="button"
@@ -30,9 +30,9 @@
 
     <template v-if="currentView === 'years'">
       <div class="datepicker-content__years-controls">
-        <ArrowRightIcon :width="24" :height="24" />
+        <ArrowRightIcon :width="24" :height="24" @click="prevYearRange" />
         <p class="datepicker-content__years-controls-year">{{ toPersianNumbers(currentYear) }}</p>
-        <ArrowLeftIcon :width="24" :height="24" />
+        <ArrowLeftIcon :width="24" :height="24" @click="nextYearRange" />
       </div>
       <div class="datepicker-content__years">
         <BaseButton
@@ -82,7 +82,9 @@
           @click="selectDay(day)"
         >
           {{ day.label }}
-          <span v-if="day.isToday" class="datepicker-content__day-today-text">امروز</span>
+          <span v-if="day.isToday && !day.isSelected" class="datepicker-content__day-today-text"
+            >امروز</span
+          >
         </BaseButton>
       </div>
     </template>
@@ -98,7 +100,12 @@
 
   const props = defineProps({
     locale: { type: String, default: 'fa' },
+    initialValue: { type: [Object, String], default: null },
+    minDate: { type: [Object, String], default: null },
+    maxDate: { type: [Object, String], default: null },
   });
+
+  const emit = defineEmits(['update:selectedDate', 'update:currentView']);
 
   const {
     currentView,
@@ -108,13 +115,46 @@
     MONTHS,
     yearRange,
     calendarDays,
-    toggleView,
-    selectMonth,
-    selectYear,
-    selectDay,
+    selectedDate,
+    toggleView: toggleViewInternal,
+    selectMonth: selectMonthInternal,
+    selectYear: selectYearInternal,
+    selectDay: selectDayInternal,
+    confirmSelection,
     getMonthName,
     toPersianNumbers,
-  } = useDatePicker({ locale: props.locale });
+    nextYearRange,
+    prevYearRange,
+  } = useDatePicker({
+    locale: props.locale,
+    initialValue: props.initialValue,
+    minDate: props.minDate,
+    maxDate: props.maxDate,
+  });
+
+  function toggleView(view) {
+    toggleViewInternal(view);
+    emit('update:currentView', currentView.value);
+  }
+
+  function selectMonth(month) {
+    selectMonthInternal(month);
+    emit('update:currentView', currentView.value);
+  }
+
+  function selectYear(year) {
+    selectYearInternal(year);
+    emit('update:currentView', currentView.value);
+  }
+
+  function selectDay(day) {
+    selectDayInternal(day);
+    emit('update:selectedDate', selectedDate.value);
+  }
+
+  defineExpose({
+    confirmSelection,
+  });
 </script>
 
 <style scoped lang="scss">

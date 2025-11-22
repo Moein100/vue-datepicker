@@ -4,7 +4,7 @@
 
 <template>
   <div class="container">
-    <DatePicker />
+    <DatePicker min-date="1404/01/01" max-date="1404/12/29" />
   </div>
 </template>
 
