@@ -7,6 +7,8 @@
       :initial-value="props.modelValue"
       :min-date="props.minDate"
       :max-date="props.maxDate"
+      :enable-time="props.enableTime"
+      :time-format="props.timeFormat"
       @update:selected-date="onDateSelect"
       @update:range-selection="onRangeSelect"
       @update:multiple-selection="onMultipleSelect"
@@ -35,7 +37,7 @@
     },
     mode: {
       type: String,
-      default: 'single', 
+      default: 'single',
     },
     minDate: {
       type: [Object, String],
@@ -44,6 +46,14 @@
     maxDate: {
       type: [Object, String],
       default: null,
+    },
+    enableTime: {
+      type: Boolean,
+      default: false,
+    },
+    timeFormat: {
+      type: [String, Number],
+      default: 24,
     },
   });
 

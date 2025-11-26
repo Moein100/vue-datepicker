@@ -39,6 +39,8 @@ export function useDatePicker(options = {}) {
     initialValue = null,
     minDate = null,
     maxDate = null,
+    enableTime = false,
+    timeFormat = 24,
   } = options;
 
   const today = jalaaliToday();
@@ -50,6 +52,10 @@ export function useDatePicker(options = {}) {
   let parsedRangeEnd = null;
   let parsedMultipleDates = [];
 
+  const selectedHour = ref(null);
+  const selectedMinute = ref(null);
+  const selectedPeriod = ref('AM');
+
   if (mode === 'range' && initialValue && typeof initialValue === 'object') {
     parsedRangeStart = parseJalaaliDate(initialValue.start);
     parsedRangeEnd = parseJalaaliDate(initialValue.end);
@@ -59,6 +65,19 @@ export function useDatePicker(options = {}) {
     parsedInitial = parsedMultipleDates[0];
   } else {
     parsedInitial = parseJalaaliDate(initialValue);
+  }
+
+  if (parsedInitial && enableTime) {
+    if (parsedInitial.hour !== undefined) {
+      selectedHour.value = parsedInitial.hour;
+    }
+    if (parsedInitial.minute !== undefined) {
+      selectedMinute.value = parsedInitial.minute;
+    }
+
+    if (timeFormat === '12' && parsedInitial.hour !== undefined) {
+      selectedPeriod.value = parsedInitial.hour >= 12 ? 'PM' : 'AM';
+    }
   }
 
   const currentView = ref('days');
@@ -94,6 +113,60 @@ export function useDatePicker(options = {}) {
       years.push(i);
     }
     return years;
+  });
+
+  const hours = computed(() => {
+    if (timeFormat === '12') {
+      return Array.from({ length: 12 }, (_, i) => (i === 0 ? 12 : i));
+    }
+    return Array.from({ length: 24 }, (_, i) => i);
+  });
+
+  const minutes = computed(() => {
+    return Array.from({ length: 60 }, (_, i) => i);
+  });
+
+  function selectHour(hour) {
+    let actualHour = hour;
+
+    if (timeFormat === '12') {
+      if (hour === 12) {
+        actualHour = selectedPeriod.value === 'AM' ? 0 : 12;
+      } else {
+        actualHour = selectedPeriod.value === 'AM' ? hour : hour + 12;
+      }
+    }
+
+    selectedHour.value = actualHour;
+  }
+
+  function selectMinute(minute) {
+    selectedMinute.value = minute;
+  }
+
+  function togglePeriod() {
+    if (timeFormat === '12') {
+      selectedPeriod.value = selectedPeriod.value === 'AM' ? 'PM' : 'AM';
+
+      if (selectedHour.value !== null) {
+        if (selectedPeriod.value === 'PM' && selectedHour.value < 12) {
+          selectedHour.value += 12;
+        } else if (selectedPeriod.value === 'AM' && selectedHour.value >= 12) {
+          selectedHour.value -= 12;
+        }
+      }
+    }
+  }
+
+  const displayHour = computed(() => {
+    if (selectedHour.value === null) return null;
+
+    if (timeFormat === '12') {
+      const hour12 = selectedHour.value % 12;
+      return hour12 === 0 ? 12 : hour12;
+    }
+
+    return selectedHour.value;
   });
 
   function isDateDisabled(year, month, day) {
@@ -263,20 +336,33 @@ export function useDatePicker(options = {}) {
   }
 
   function confirmSelection() {
+    const addTimeToDate = (date) => {
+      if (!enableTime || !date) return date;
+
+      return {
+        ...date,
+        hour: selectedHour.value ?? 0,
+        minute: selectedMinute.value ?? 0,
+      };
+    };
+
     if (mode === 'range') {
       if (rangeStart.value && rangeEnd.value) {
-        return { start: rangeStart.value, end: rangeEnd.value };
+        return {
+          start: addTimeToDate(rangeStart.value),
+          end: addTimeToDate(rangeEnd.value),
+        };
       }
       return null;
     } else if (mode === 'multiple') {
       if (multipleDates.value.length > 0) {
         const sortedDates = [...multipleDates.value].sort(compareDates);
-        return sortedDates;
+        return sortedDates.map(addTimeToDate);
       }
       return [];
     } else {
       if (selectedDate.value) {
-        confirmedDate.value = { ...selectedDate.value };
+        confirmedDate.value = addTimeToDate({ ...selectedDate.value });
         return confirmedDate.value;
       }
       return null;
@@ -311,10 +397,21 @@ export function useDatePicker(options = {}) {
     yearRange,
     calendarDays,
     selectedDate,
+    enableTime,
+    selectedHour,
+    selectedMinute,
+    selectedPeriod,
+    displayHour,
+    hours,
+    minutes,
+    timeFormat,
     toggleView,
     selectMonth,
     selectYear,
     selectDay,
+    selectHour,
+    selectMinute,
+    togglePeriod,
     confirmSelection,
     getMonthName,
     nextYearRange,

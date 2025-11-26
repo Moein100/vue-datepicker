@@ -24,6 +24,8 @@
             :min-date="minDate"
             :max-date="maxDate"
             :locale="locale"
+            :enable-time="enableTime"
+            :time-format="timeFormat"
             @confirm="handleConfirm"
             @close="closePicker"
             @change="handleChange"
@@ -48,7 +50,7 @@
     mode: {
       type: String,
       default: 'single',
-      validator: (value) => ['single', 'range'].includes(value),
+      validator: (value) => ['single', 'range', 'multiple'].includes(value),
     },
     placeholder: {
       type: String,
@@ -70,6 +72,14 @@
       type: [Date, String],
       default: null,
     },
+    enableTime: {
+      type: Boolean,
+      default: false,
+    },
+    timeFormat: {
+      type: [String, Number],
+      default: 24,
+    },
   });
 
   const emit = defineEmits(['update:modelValue', 'change', 'confirm', 'open', 'close']);
@@ -80,14 +90,22 @@
 
   function formatSingleDate(date) {
     if (!date) return '';
-    const { jy, jm, jd } = date;
+    const { jy, jm, jd, hour, minute } = date;
     let formatted = props.format;
 
     formatted = formatted.replace('YYYY', jy);
     formatted = formatted.replace('MM', String(jm).padStart(2, '0'));
     formatted = formatted.replace('DD', String(jd).padStart(2, '0'));
 
-    return toPersianNumbers(formatted);
+    let result = toPersianNumbers(formatted);
+
+    if (props.enableTime && hour !== undefined && minute !== undefined) {
+      const hourStr = String(hour).padStart(2, '0');
+      const minuteStr = String(minute).padStart(2, '0');
+      result += ` ${toPersianNumbers(hourStr)}:${toPersianNumbers(minuteStr)}`;
+    }
+
+    return result;
   }
 
   const formattedDate = computed(() => {

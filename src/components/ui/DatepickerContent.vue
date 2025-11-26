@@ -91,6 +91,21 @@
         </BaseButton>
       </div>
     </template>
+
+    <TimePicker
+      v-if="enableTime && currentView === 'days'"
+      :selected-hour="selectedHour"
+      :selected-minute="selectedMinute"
+      :selected-period="selectedPeriod"
+      :display-hour="displayHour"
+      :hours="hours"
+      :minutes="minutes"
+      :time-format="timeFormat"
+      :to-persian-numbers="toPersianNumbers"
+      @select-hour="selectHour"
+      @select-minute="selectMinute"
+      @toggle-period="togglePeriod"
+    />
   </section>
 </template>
 
@@ -99,6 +114,7 @@
   import ArrowDownIcon from '../icons/ArrowDownIcon.vue';
   import ArrowLeftIcon from '../icons/ArrowLeftIcon.vue';
   import ArrowRightIcon from '../icons/ArrowRightIcon.vue';
+  import TimePicker from './TimePicker.vue';
   import { useDatePicker } from '@/composables/useDatePicker';
 
   const props = defineProps({
@@ -107,6 +123,8 @@
     initialValue: { type: [Object, String], default: null },
     minDate: { type: [Object, String], default: null },
     maxDate: { type: [Object, String], default: null },
+    enableTime: { type: Boolean, default: false },
+    timeFormat: { type: [String, Number], default: 24 },
   });
 
   const emit = defineEmits([
@@ -128,20 +146,34 @@
     rangeStart,
     rangeEnd,
     multipleDates,
+    enableTime,
+    selectedHour,
+    selectedMinute,
+    selectedPeriod,
+    displayHour,
+    hours,
+    minutes,
+    timeFormat,
     toggleView: toggleViewInternal,
     selectMonth: selectMonthInternal,
     selectYear: selectYearInternal,
     selectDay: selectDayInternal,
+    selectHour: selectHourInternal,
+    selectMinute: selectMinuteInternal,
+    togglePeriod: togglePeriodInternal,
     confirmSelection: confirmSelectionInternal,
     getMonthName,
     nextYearRange,
     prevYearRange,
+    toPersianNumbers,
   } = useDatePicker({
     locale: props.locale,
     mode: props.mode,
     initialValue: props.initialValue,
     minDate: props.minDate,
     maxDate: props.maxDate,
+    enableTime: props.enableTime,
+    timeFormat: props.timeFormat,
   });
 
   function toggleView(view) {
@@ -168,6 +200,18 @@
     } else {
       emit('update:selectedDate', selectedDate.value);
     }
+  }
+
+  function selectHour(hour) {
+    selectHourInternal(hour);
+  }
+
+  function selectMinute(minute) {
+    selectMinuteInternal(minute);
+  }
+
+  function togglePeriod() {
+    togglePeriodInternal();
   }
 
   function confirmSelection() {
