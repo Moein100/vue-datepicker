@@ -1,8 +1,9 @@
 <script setup>
   import { ref } from 'vue';
-  import DatepickerInput from './components/ui/DatepickerInput.vue';
+  import DatepickerInput from './components/datepicker/DatepickerInput.vue';
 
   const selectedDateTime = ref(null);
+  const selectedRange = ref(null);
 </script>
 
 <template>
@@ -10,12 +11,11 @@
     <div>
       <DatepickerInput
         v-model="selectedDateTime"
-        mode="single"
+        mode="multiple"
         :enable-time="true"
         :time-format="24"
         placeholder="انتخاب تاریخ و زمان"
       />
-      <p v-if="selectedDateTime">تاریخ و زمان انتخاب شده: {{ JSON.stringify(selectedDateTime) }}</p>
     </div>
 
     <div>
@@ -26,7 +26,6 @@
         :time-format="'12'"
         placeholder="انتخاب تاریخ و زمان"
       />
-      <p v-if="selectedRange">تاریخ و زمان انتخاب شده: {{ JSON.stringify(selectedRange) }}</p>
     </div>
   </div>
 </template>

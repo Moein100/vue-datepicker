@@ -19,7 +19,7 @@ export function toJalaali(gy, gm, gd) {
   gm = parseInt(gm);
   gd = parseInt(gd);
 
-  const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+  const gDaysInMonth = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
 
   if (gy > 1600) {
     jy = 979;
@@ -31,7 +31,13 @@ export function toJalaali(gy, gm, gd) {
 
   if (gm > 2) {
     days =
-      365 * gy + div(gy + 3, 4) - div(gy + 99, 100) + div(gy + 399, 400) - 80 + gd + g_d_m[gm - 1];
+      365 * gy +
+      div(gy + 3, 4) -
+      div(gy + 99, 100) +
+      div(gy + 399, 400) -
+      80 +
+      gd +
+      gDaysInMonth[gm - 1];
   } else {
     days =
       365 * gy +
@@ -40,7 +46,7 @@ export function toJalaali(gy, gm, gd) {
       div(gy + 399, 400) -
       80 +
       gd +
-      g_d_m[gm - 1] -
+      gDaysInMonth[gm - 1] -
       1;
   }
 
@@ -115,11 +121,11 @@ export function toGregorian(jy, jm, jd) {
     days = mod(days, 365);
   }
 
-  const g_d_m = [0, 31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  const gDaysInMonth = [0, 31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
   let i;
 
-  for (i = 0; g_d_m[i + 1] <= days; i++) {
-    days -= g_d_m[i + 1];
+  for (i = 0; gDaysInMonth[i + 1] <= days; i++) {
+    days -= gDaysInMonth[i + 1];
   }
 
   gm = i + 1;
@@ -171,37 +177,44 @@ export function jalaaliToday() {
   return toJalaali(today);
 }
 
-export function getJalaaliMonthName(month, locale = 'fa') {
-  const months = {
-    fa: [
-      'فروردین',
-      'اردیبهشت',
-      'خرداد',
-      'تیر',
-      'مرداد',
-      'شهریور',
-      'مهر',
-      'آبان',
-      'آذر',
-      'دی',
-      'بهمن',
-      'اسفند',
-    ],
-  };
 
-  return months[locale][month - 1] || '';
-}
-
-export function getJalaaliWeekdays(locale = 'fa') {
-  const weekdays = {
-    fa: ['شنبه', '۱شنبه', '۲شنبه', '۳شنبه', '۴شنبه', '۵شنبه', 'جمعه'],
-  };
-
-  return weekdays[locale] || weekdays.fa;
-}
 
 export function getJalaaliWeekday(jy, jm, jd) {
   const g = toGregorian(jy, jm, jd);
   const date = new Date(g.gy, g.gm - 1, g.gd);
   return (date.getDay() + 1) % 7;
+}
+
+export function timestampToJalaali(timestamp) {
+  const date = new Date(timestamp);
+  const jDate = toJalaali(date);
+  return {
+    ...jDate,
+    hour: date.getHours(),
+    minute: date.getMinutes(),
+  };
+}
+
+export function jalaaliToTimestamp(jDate) {
+  if (!jDate) return null;
+
+  const { jy, jm, jd, hour = 0, minute = 0, second = 0 } = jDate;
+  const gregorian = toGregorian(jy, jm, jd);
+  const date = new Date(gregorian.gy, gregorian.gm - 1, gregorian.gd, hour, minute, second);
+
+  return date.getTime();
+}
+
+export function jalaaliToDate(jDate) {
+  if (!jDate) return null;
+
+  const { jy, jm, jd, hour = 0, minute = 0, second = 0 } = jDate;
+  const gregorian = toGregorian(jy, jm, jd);
+
+  return new Date(gregorian.gy, gregorian.gm - 1, gregorian.gd, hour, minute, second);
+}
+
+export function jalaaliToISOString(jDate) {
+  const date = jalaaliToDate(jDate);
+  return date ? date.toISOString() : null;
 }

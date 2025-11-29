@@ -1,18 +1,20 @@
 <template>
   <main class="datepicker-wrapper">
     <div class="datepicker-input-container">
-      <input
+      <BaseInput
         ref="inputRef"
         type="text"
         class="datepicker-input"
-        :value="formattedDate"
+        :model-value="formattedDate"
         :placeholder="placeholder"
         readonly
         @click="togglePicker"
       />
-      <button type="button" class="datepicker-input__icon" @click="togglePicker">
-        <CalendarIcon />
-      </button>
+      <BaseButton type="button" variant="icon" class="datepicker-input__icon" @click="togglePicker">
+        <template #icon-left>
+          <CalendarIcon />
+        </template>
+      </BaseButton>
     </div>
 
     <Transition name="datepicker-fade">
@@ -41,6 +43,8 @@
   import DatePicker from './DatePicker.vue';
   import { toPersianNumbers } from '@/utils/toPersianNumbers';
   import CalendarIcon from '../icons/CalendarIcon.vue';
+  import BaseInput from '../base/BaseInput.vue';
+  import BaseButton from '../base/BaseButton.vue';
 
   const props = defineProps({
     modelValue: {

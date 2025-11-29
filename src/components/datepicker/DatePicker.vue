@@ -22,9 +22,9 @@
 
 <script setup>
   import { ref, onMounted, onUnmounted } from 'vue';
-  import DatepickerContent from './DatepickerContent.vue';
-  import DatepickerHeader from './DatepickerHeader.vue';
-  import BaseButton from '../common/BaseButton.vue';
+  import DatepickerContent from '../datepicker/DatepickerContent.vue';
+  import DatepickerHeader from '../datepicker/DatepickerHeader.vue';
+  import BaseButton from '../base/BaseButton.vue';
 
   const props = defineProps({
     modelValue: {

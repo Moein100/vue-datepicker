@@ -1,6 +1,6 @@
 <template>
   <section class="datepicker-content">
-    <div v-if="currentView !== 'years'" class="datepicker-content__controls">
+    <div v-if="navigation.currentView.value !== 'years'" class="datepicker-content__controls">
       <BaseButton
         variant="outline"
         type="button"
@@ -11,7 +11,7 @@
         <template #icon-right>
           <ArrowDownIcon :width="24" :height="24" />
         </template>
-        {{ getMonthName(currentMonth) }}
+        {{ getMonthName(navigation.currentMonth.value) }}
       </BaseButton>
 
       <BaseButton
@@ -24,23 +24,25 @@
         <template #icon-right>
           <ArrowDownIcon :width="24" :height="24" />
         </template>
-        {{ currentYear }}
+        {{ navigation.currentYear.value }}
       </BaseButton>
     </div>
 
-    <template v-if="currentView === 'years'">
+    <template v-if="navigation.currentView.value === 'years'">
       <div class="datepicker-content__years-controls">
         <ArrowRightIcon :width="24" :height="24" @click="prevYearRange" />
-        <p class="datepicker-content__years-controls-year">{{ currentYear }}</p>
+        <p class="datepicker-content__years-controls-year">{{ navigation.currentYear.value }}</p>
         <ArrowLeftIcon :width="24" :height="24" @click="nextYearRange" />
       </div>
       <div class="datepicker-content__years">
         <BaseButton
-          v-for="year in yearRange"
+          v-for="year in navigation.yearRange.value"
           :key="year"
           variant="secondary"
           size="small"
-          :class="{ 'datepicker-content__years-btn--active': currentYear === year }"
+          :class="{
+            'datepicker-content__years-btn--active': navigation.currentYear.value === year,
+          }"
           @click="selectYear(year)"
         >
           {{ year }}
@@ -48,20 +50,22 @@
       </div>
     </template>
 
-    <div v-if="currentView === 'months'" class="datepicker-content__months">
+    <div v-if="navigation.currentView.value === 'months'" class="datepicker-content__months">
       <BaseButton
         v-for="month in MONTHS"
         :key="month"
         variant="secondary"
         size="small"
-        :class="{ 'datepicker-content__months-btn--active': currentMonth === month }"
+        :class="{
+          'datepicker-content__months-btn--active': navigation.currentMonth.value === month,
+        }"
         @click="selectMonth(month)"
       >
         {{ getMonthName(month) }}
       </BaseButton>
     </div>
 
-    <template v-if="currentView === 'days'">
+    <template v-if="navigation.currentView.value === 'days'">
       <div class="datepicker-content__weekdays">
         <span v-for="weekday in WEEKDAYS" :key="weekday" class="datepicker-content__weekday">
           {{ weekday }}
@@ -93,14 +97,14 @@
     </template>
 
     <TimePicker
-      v-if="enableTime && currentView === 'days'"
-      :selected-hour="selectedHour"
-      :selected-minute="selectedMinute"
-      :selected-period="selectedPeriod"
-      :display-hour="displayHour"
-      :hours="hours"
-      :minutes="minutes"
-      :time-format="timeFormat"
+      v-if="props.enableTime && navigation.currentView.value === 'days'"
+      :selected-hour="time?.hour.value"
+      :selected-minute="time?.minute.value"
+      :selected-period="time?.period.value"
+      :display-hour="time?.displayHour.value"
+      :hours="time?.hours.value || []"
+      :minutes="time?.minutes.value || []"
+      :time-format="props.timeFormat"
       :to-persian-numbers="toPersianNumbers"
       @select-hour="selectHour"
       @select-minute="selectMinute"
@@ -110,12 +114,21 @@
 </template>
 
 <script setup>
-  import BaseButton from '../common/BaseButton.vue';
+  import { computed } from 'vue';
+  import BaseButton from '../base/BaseButton.vue';
   import ArrowDownIcon from '../icons/ArrowDownIcon.vue';
   import ArrowLeftIcon from '../icons/ArrowLeftIcon.vue';
   import ArrowRightIcon from '../icons/ArrowRightIcon.vue';
   import TimePicker from './TimePicker.vue';
-  import { useDatePicker } from '@/composables/useDatePicker';
+  import { useNavigation } from '@/composables/datepicker/useNavigation.js';
+  import { createSelection } from '@/composables/datepicker/useSelection.js';
+  import { useTimeSelection } from '@/composables/datepicker/useTimeSelection.js';
+  import { useDateConstraints } from '@/composables/datepicker/useDateConstraints.js';
+  import { useCalendarGrid } from '@/composables/datepicker/useCalendarGrid.js';
+  import { localeManager } from '@/locales/localeManager.js';
+  import '@/locales/fa.js';
+  import { toPersianNumbers } from '@/utils/datepicker/dateFormatter.js';
+  import { CALENDAR_CONFIG } from '@/constants/datepicker.js';
 
   const props = defineProps({
     locale: { type: String, default: 'fa' },
@@ -134,88 +147,110 @@
     'update:multipleSelection',
   ]);
 
-  const {
-    currentView,
-    currentYear,
-    currentMonth,
-    WEEKDAYS,
-    MONTHS,
-    yearRange,
-    calendarDays,
-    selectedDate,
-    rangeStart,
-    rangeEnd,
-    multipleDates,
-    enableTime,
-    selectedHour,
-    selectedMinute,
-    selectedPeriod,
-    displayHour,
-    hours,
-    minutes,
-    timeFormat,
-    toggleView: toggleViewInternal,
-    selectMonth: selectMonthInternal,
-    selectYear: selectYearInternal,
-    selectDay: selectDayInternal,
-    selectHour: selectHourInternal,
-    selectMinute: selectMinuteInternal,
-    togglePeriod: togglePeriodInternal,
-    confirmSelection: confirmSelectionInternal,
-    getMonthName,
-    nextYearRange,
-    prevYearRange,
-    toPersianNumbers,
-  } = useDatePicker({
+  const navigation = useNavigation(props.initialValue);
+  const selection = createSelection(props.mode, props.initialValue);
+  const constraints = useDateConstraints({ minDate: props.minDate, maxDate: props.maxDate });
+  const time = props.enableTime
+    ? useTimeSelection({ timeFormat: props.timeFormat, initialValue: props.initialValue })
+    : null;
+
+  const { days: calendarDays } = useCalendarGrid({
+    year: navigation.currentYear,
+    month: navigation.currentMonth,
+    selection,
+    constraints,
     locale: props.locale,
-    mode: props.mode,
-    initialValue: props.initialValue,
-    minDate: props.minDate,
-    maxDate: props.maxDate,
-    enableTime: props.enableTime,
-    timeFormat: props.timeFormat,
   });
 
+  const currentLocale = computed(() => localeManager.get(props.locale));
+  const WEEKDAYS = computed(() => currentLocale.value?.weekdays || []);
+  const MONTHS = computed(() =>
+    Array.from({ length: CALENDAR_CONFIG.MONTHS_IN_YEAR }, (_, i) => i + 1),
+  );
+
+  function getMonthName(month) {
+    return localeManager.getMonthName(month, props.locale);
+  }
+
   function toggleView(view) {
-    toggleViewInternal(view);
-    emit('update:currentView', currentView.value);
+    navigation.toggleView(view);
+    emit('update:currentView', navigation.currentView.value);
   }
 
   function selectMonth(month) {
-    selectMonthInternal(month);
-    emit('update:currentView', currentView.value);
+    navigation.setMonth(month);
+    emit('update:currentView', navigation.currentView.value);
   }
 
   function selectYear(year) {
-    selectYearInternal(year);
-    emit('update:currentView', currentView.value);
+    navigation.setYear(year);
+    emit('update:currentView', navigation.currentView.value);
   }
 
-  function selectDay(day) {
-    selectDayInternal(day);
+  function selectDay(dayObj) {
+    if (dayObj.isDisabled) return;
+
+    if (dayObj.isPrevMonth || dayObj.isNextMonth) {
+      navigation.goToDate(dayObj.date);
+    }
+
+    selection.select(dayObj.date);
+
     if (props.mode === 'range') {
-      emit('update:rangeSelection', { start: rangeStart.value, end: rangeEnd.value });
+      emit('update:rangeSelection', selection.getValue());
     } else if (props.mode === 'multiple') {
-      emit('update:multipleSelection', multipleDates.value);
+      emit('update:multipleSelection', selection.getValue());
     } else {
-      emit('update:selectedDate', selectedDate.value);
+      emit('update:selectedDate', selection.getValue());
     }
   }
 
   function selectHour(hour) {
-    selectHourInternal(hour);
+    if (time) time.selectHour(hour);
   }
 
   function selectMinute(minute) {
-    selectMinuteInternal(minute);
+    if (time) time.selectMinute(minute);
   }
 
   function togglePeriod() {
-    togglePeriodInternal();
+    if (time) time.togglePeriod();
+  }
+
+  function nextYearRange() {
+    for (let i = 0; i < CALENDAR_CONFIG.YEARS_TO_SHOW; i++) {
+      navigation.nextYear();
+    }
+  }
+
+  function prevYearRange() {
+    for (let i = 0; i < CALENDAR_CONFIG.YEARS_TO_SHOW; i++) {
+      navigation.prevYear();
+    }
   }
 
   function confirmSelection() {
-    return confirmSelectionInternal();
+    const dateValue = selection.getValue();
+    if (!dateValue) return null;
+
+    if (time && props.enableTime) {
+      const timeValue = time.getValue() || { hour: 0, minute: 0 };
+
+      if (props.mode === 'range') {
+        return {
+          start: { ...dateValue.start, ...timeValue },
+          end: { ...dateValue.end, ...timeValue },
+        };
+      }
+
+      if (props.mode === 'multiple') {
+        return dateValue.map((d) => ({ ...d, ...timeValue }));
+      }
+
+      return { ...dateValue, ...timeValue };
+    }
+
+    return dateValue;
   }
 
   defineExpose({
@@ -282,11 +317,13 @@
 
     &__days {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(7, 32px);
+      align-items: center;
       row-gap: 16px;
       column-gap: 0;
       font-weight: 400;
       font-size: 14px;
+      justify-content: space-between;
     }
 
     &__day {
@@ -299,7 +336,6 @@
       cursor: pointer;
       @include customFlex(column, start, center);
       position: relative;
-
       &--selected {
         background-color: $primary-500;
         color: $white-100;
