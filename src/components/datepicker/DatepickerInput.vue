@@ -44,7 +44,8 @@
   import CalendarIcon from '../icons/CalendarIcon.vue';
   import BaseInput from '../base/BaseInput.vue';
   import BaseButton from '../base/BaseButton.vue';
-import { toPersianNumbers } from '@/locales';
+  import { toLocalizedNumbers } from '@/locales';
+  import { localeManager } from '@/locales/localeManager';
 
   const props = defineProps({
     modelValue: {
@@ -97,16 +98,18 @@ import { toPersianNumbers } from '@/locales';
     const { jy, jm, jd, hour, minute } = date;
     let formatted = props.format;
 
+    const numberSystem = localeManager.getNumberSystem(props.locale);
+
     formatted = formatted.replace('YYYY', jy);
     formatted = formatted.replace('MM', String(jm).padStart(2, '0'));
     formatted = formatted.replace('DD', String(jd).padStart(2, '0'));
 
-    let result = toPersianNumbers(formatted);
+    let result = toLocalizedNumbers(formatted, numberSystem);
 
     if (props.enableTime && hour !== undefined && minute !== undefined) {
       const hourStr = String(hour).padStart(2, '0');
       const minuteStr = String(minute).padStart(2, '0');
-      result += ` ${toPersianNumbers(hourStr)}:${toPersianNumbers(minuteStr)}`;
+      result += ` ${toLocalizedNumbers(hourStr, numberSystem)}:${toLocalizedNumbers(minuteStr, numberSystem)}`;
     }
 
     return result;

@@ -1,4 +1,4 @@
-import { computed, isRef, unref, ref } from 'vue';
+import { computed, isRef, ref } from 'vue';
 import {
   jalaaliMonthLength,
   jalaaliToday,
@@ -95,7 +95,7 @@ export function useCalendarGrid(options) {
   }
 
   const days = computed(() => {
-    const currentLocale = unref(locale);
+    const currentLocale = isRef(locale) ? locale.value : locale;
     const numberSystem = localeManager.getNumberSystem(currentLocale);
 
     const prevDays = getPrevMonthDays(numberSystem);
