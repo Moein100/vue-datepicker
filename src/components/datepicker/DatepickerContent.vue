@@ -1,5 +1,5 @@
 <template>
-  <section class="datepicker-content">
+  <section class="datepicker-content" :style="{ fontFamily: fontFamily }">
     <div v-if="navigation.currentView.value !== 'years'" class="datepicker-content__controls">
       <DatePickerLocaleSelector
         v-if="enableLocaleSelector"
@@ -96,9 +96,9 @@
           :disabled="day.isDisabled"
           @click="selectDay(day)"
         >
-          {{ day.label }}
+          {{ formatNumber(day.day) }}
           <span v-if="day.isToday && !day.isSelected" class="datepicker-content__day-today-text">
-            {{ locale.getText('todayText') }}
+            {{ i18nStore.getText('todayText') }}
           </span>
         </BaseButton>
       </div>
@@ -133,13 +133,14 @@
   import { useTimeSelection } from '@/composables/datepicker/useTimeSelection.js';
   import { useDateConstraints } from '@/composables/datepicker/useDateConstraints.js';
   import { useCalendarGrid } from '@/composables/datepicker/useCalendarGrid.js';
-  import { useDatePickerLocale } from '@/composables/datepicker/useDatePickerLocale.js';
+  import { toLocalizedNumbers } from '@/locales/numberFormatter.js';
 
   import { CALENDAR_CONFIG } from '@/constants/datepicker.js';
   import DatePickerLocaleSelector from './DatePickerLocaleSelector.vue';
+import { useI18nStore } from '@/store/i18n';
 
   const props = defineProps({
-    locale: { type: String, default: 'fa' },
+    locale: { type: String, default: null },
     mode: { type: String, default: 'single' },
     initialValue: { type: [Object, String], default: null },
     minDate: { type: [Object, String], default: null },
@@ -157,20 +158,20 @@
     'update:locale',
   ]);
 
-  const locale = useDatePickerLocale(props.locale);
-  const selectedLocale = ref(props.locale);
+  const i18nStore = useI18nStore();
+  const selectedLocale = ref(props.locale || i18nStore.currentLocale);
 
   watch(selectedLocale, (newLocale) => {
-    locale.setLocale(newLocale);
+    i18nStore.setLocale(newLocale);
     emit('update:locale', newLocale);
   });
 
   watch(
     () => props.locale,
     (newLocale) => {
-      if (newLocale !== selectedLocale.value) {
+      if (newLocale && newLocale !== selectedLocale.value) {
         selectedLocale.value = newLocale;
-        locale.setLocale(newLocale);
+        i18nStore.setLocale(newLocale);
       }
     },
   );
@@ -190,22 +191,32 @@
     locale: selectedLocale,
   });
 
-  const availableLocales = computed(() => locale.availableLocales.value);
-  const WEEKDAYS = computed(() => locale.localeConfig.value?.weekdays || []);
+  const availableLocales = computed(() => i18nStore.availableLocales);
+  const WEEKDAYS = computed(() => i18nStore.locale?.weekdays || []);
   const MONTHS = computed(() =>
     Array.from({ length: CALENDAR_CONFIG.MONTHS_IN_YEAR }, (_, i) => i + 1),
   );
 
+  const fontFamily = computed(() => {
+    const fontMap = {
+      jalali: 'IRANYekan',
+      hijri: 'IRANYekan',
+      gregorian: 'Arial, sans-serif',
+      chinese: 'Microsoft YaHei, SimHei, sans-serif',
+    };
+    return fontMap[i18nStore.calendarType] || 'Arial, sans-serif';
+  });
+
   function getMonthName(month) {
-    return locale.getMonthName(month);
+    return i18nStore.getMonthName(month);
   }
 
   function formatNumber(value) {
-    return locale.formatNumber(value);
+    return toLocalizedNumbers(value, i18nStore.numberSystem);
   }
 
   function toPersianNumbers(value) {
-    return locale.formatNumber(value);
+    return toLocalizedNumbers(value, i18nStore.numberSystem);
   }
 
   function toggleView(view) {
@@ -336,7 +347,6 @@
       gap: 16px;
       font-size: 12px;
       font-weight: 400;
-      font-family: 'IRANYekan';
       background-color: $gray-50;
       height: 16px;
       width: 100%;
@@ -365,7 +375,6 @@
       border-radius: 10px;
       font-size: 14px;
       font-weight: 400;
-      font-family: 'IRANYekan';
       width: 32px;
       height: 32px;
       cursor: pointer;

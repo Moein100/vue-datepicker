@@ -6,23 +6,6 @@
 
     <div class="time-picker__content">
       <div class="time-picker__column">
-        <div class="time-picker__label">ساعت</div>
-        <div class="time-picker__scroll-container">
-          <div
-            v-for="hour in hours"
-            :key="hour"
-            :class="[
-              'time-picker__item',
-              { 'time-picker__item--selected': isHourSelected(hour) },
-            ]"
-            @click="onSelectHour(hour)"
-          >
-            {{ toPersianNumbers(hour) }}
-          </div>
-        </div>
-      </div>
-
-      <div class="time-picker__column">
         <div class="time-picker__label">دقیقه</div>
         <div class="time-picker__scroll-container">
           <div
@@ -35,6 +18,20 @@
             @click="onSelectMinute(minute)"
           >
             {{ toPersianNumbers(String(minute).padStart(2, '0')) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="time-picker__column">
+        <div class="time-picker__label">ساعت</div>
+        <div class="time-picker__scroll-container">
+          <div
+            v-for="hour in hours"
+            :key="hour"
+            :class="['time-picker__item', { 'time-picker__item--selected': isHourSelected(hour) }]"
+            @click="onSelectHour(hour)"
+          >
+            {{ toPersianNumbers(hour) }}
           </div>
         </div>
       </div>

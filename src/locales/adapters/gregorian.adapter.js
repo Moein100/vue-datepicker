@@ -2,6 +2,9 @@ export const GregorianAdapter = {
   getToday() {
     const date = new Date();
     return {
+      jy: date.getFullYear(),
+      jm: date.getMonth() + 1,
+      jd: date.getDate(),
       year: date.getFullYear(),
       month: date.getMonth() + 1,
       day: date.getDate(),

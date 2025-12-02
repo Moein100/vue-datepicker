@@ -129,7 +129,6 @@
       padding: $padding-8;
       text-align: right;
       cursor: pointer;
-      font-family: 'IRANYekan';
       font-size: 12px;
       font-weight: 400;
       transition: background-color 0.2s ease;

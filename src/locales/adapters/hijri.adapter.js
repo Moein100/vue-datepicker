@@ -30,46 +30,22 @@ function jdFromDate(date) {
 }
 
 function islamicFromJd(jd) {
-  jd = Math.floor(jd) + 0.5;
-  const epoch = 1948439.5;
-  const days = Math.floor(jd - epoch);
-  const year = Math.floor((30 * days + 10646) / 10631);
-  const month = Math.min(12, Math.ceil((days - 29 - hijriYearStartDays(year) + 1) / 29.5) + 1);
-  const n = jd - 1948439.5;
-  const year2 = Math.floor((30 * n + 10646) / 10631);
-  const month2 = Math.min(
-    12,
-    Math.ceil(
-      (n - 29 - Math.floor((year2 - 1) * 354 + Math.floor((3 + 11 * year2) / 30)) + 1) / 29.5,
-    ) + 1,
-  );
-  const iy = Math.floor((30 * (jd - 1948439) + 10646) / 10631);
-  const firstDayOfYear = Math.floor(1948439 + 354 * (iy - 1) + Math.floor((3 + 11 * iy) / 30));
-  const monthApprox = Math.ceil((jd - firstDayOfYear + 1) / 29.5);
-  const im = Math.min(12, monthApprox);
-  const id = Math.floor(jd - (firstDayOfYear + Math.floor(29.5 * (im - 1))));
-  const islamicYear = iy;
-  let monthStartJd = Math.floor(
-    1948439 + 354 * (islamicYear - 1) + Math.floor((3 + 11 * islamicYear) / 30),
-  );
-  let imth = 1;
-  let iday = 1;
-  let found = false;
-  for (let m = 1; m <= 12; m++) {
-    const len = m % 2 === 1 ? 30 : 29;
-    if (jd >= monthStartJd && jd < monthStartJd + len) {
-      imth = m;
-      iday = Math.floor(jd - monthStartJd) + 1;
-      found = true;
-      break;
-    }
-    monthStartJd += len;
-  }
-  if (!found) {
-    imth = 12;
-    iday = Math.max(1, Math.min(29, Math.floor(jd - monthStartJd) + 1));
-  }
-  return { iy: islamicYear, im: imth, id: iday };
+  const l = Math.floor(jd) - 1948440 + 10632;
+  const n = Math.floor((l - 1) / 10631);
+  const l2 = l - 10631 * n + 354;
+  const j =
+    Math.floor((10985 - l2) / 5316) * Math.floor((50 * l2) / 17719) +
+    Math.floor(l2 / 5670) * Math.floor((43 * l2) / 15238);
+  const l3 =
+    l2 -
+    Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) -
+    Math.floor(j / 16) * Math.floor((15238 * j) / 43) +
+    29;
+  const m = Math.floor((24 * l3) / 709);
+  const d = l3 - Math.floor((709 * m) / 24);
+  const y = 30 * n + j - 30;
+
+  return { iy: y, im: m, id: d };
 }
 
 function jdToIslamic(jd) {
@@ -94,11 +70,22 @@ function islamicToJd(year, month, day) {
   );
 }
 
+// function hijriYearStartDays(year) {
+//   return Math.floor((year - 1) * 354 + Math.floor((3 + 11 * year) / 30));
+// }
+
 export const HijriAdapter = {
   getToday() {
     const jd = jdFromDate(new Date());
-    const i = jdToIslamic(jd);
-    return { year: i.year, month: i.month, day: i.day };
+    const i = islamicFromJd(jd);
+    return {
+      jy: i.iy,
+      jm: i.im,
+      jd: i.id,
+      year: i.iy,
+      month: i.im,
+      day: i.id,
+    };
   },
 
   getDaysInMonth(year, month) {
@@ -141,7 +128,17 @@ export const HijriAdapter = {
 
   format(date) {
     const jd = jdFromDate(date);
-    const i = jdToIslamic(jd);
-    return `${i.year}-${String(i.month).padStart(2, '0')}-${String(i.day).padStart(2, '0')}`;
+    const i = islamicFromJd(jd);
+    return `${i.iy}-${String(i.im).padStart(2, '0')}-${String(i.id).padStart(2, '0')}`;
+  },
+
+  getWeekday(year, month, day) {
+    const jd = islamicToJd(year, month, day);
+    const gregorianDate = jdToGregorian(jd);
+    return (gregorianDate.getDay() + 1) % 7;
+  },
+
+  isLeapYear(year) {
+    return (11 * year + 14) % 30 < 11;
   },
 };

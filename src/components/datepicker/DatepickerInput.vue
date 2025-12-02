@@ -6,7 +6,8 @@
         type="text"
         class="datepicker-input"
         :model-value="formattedDate"
-        :placeholder="placeholder"
+        :placeholder="computedPlaceholder"
+        :style="{ fontFamily: fontFamily }"
         readonly
         @click="togglePicker"
       />
@@ -25,12 +26,13 @@
             :mode="mode"
             :min-date="minDate"
             :max-date="maxDate"
-            :locale="locale"
+            :locale="currentLocale"
             :enable-time="enableTime"
             :time-format="timeFormat"
             @confirm="handleConfirm"
             @close="closePicker"
             @change="handleChange"
+            @update:locale="handleLocaleChange"
           />
         </div>
       </div>
@@ -45,7 +47,7 @@
   import BaseInput from '../base/BaseInput.vue';
   import BaseButton from '../base/BaseButton.vue';
   import { toLocalizedNumbers } from '@/locales';
-  import { localeManager } from '@/locales/localeManager';
+import { useI18nStore } from '@/store/i18n';
 
   const props = defineProps({
     modelValue: {
@@ -59,7 +61,7 @@
     },
     placeholder: {
       type: String,
-      default: 'انتخاب تاریخ',
+      default: null,
     },
     format: {
       type: String,
@@ -67,7 +69,7 @@
     },
     locale: {
       type: String,
-      default: 'fa',
+      default: null,
     },
     minDate: {
       type: [Date, String],
@@ -87,18 +89,40 @@
     },
   });
 
-  const emit = defineEmits(['update:modelValue', 'change', 'confirm', 'open', 'close']);
+  const emit = defineEmits([
+    'update:modelValue',
+    'change',
+    'confirm',
+    'open',
+    'close',
+    'update:locale',
+  ]);
 
+  const i18nStore = useI18nStore();
   const isOpen = ref(false);
   const internalValue = ref(props.modelValue);
   const inputRef = ref(null);
+  const currentLocale = computed(() => props.locale || i18nStore.currentLocale);
+  const computedPlaceholder = computed(
+    () => props.placeholder || i18nStore.getText('selectDateText'),
+  );
+
+  const fontFamily = computed(() => {
+    const fontMap = {
+      jalali: 'IRANYekan',
+      hijri: 'IRANYekan',
+      gregorian: 'Arial, sans-serif',
+      chinese: 'Microsoft YaHei, SimHei, sans-serif',
+    };
+    return fontMap[i18nStore.calendarType] || 'Arial, sans-serif';
+  });
 
   function formatSingleDate(date) {
     if (!date) return '';
     const { jy, jm, jd, hour, minute } = date;
     let formatted = props.format;
 
-    const numberSystem = localeManager.getNumberSystem(props.locale);
+    const numberSystem = i18nStore.numberSystem;
 
     formatted = formatted.replace('YYYY', jy);
     formatted = formatted.replace('MM', String(jm).padStart(2, '0'));
@@ -161,6 +185,10 @@
     emit('change', date);
   }
 
+  function handleLocaleChange(newLocale) {
+    emit('update:locale', newLocale);
+  }
+
   watch(
     () => props.modelValue,
     (newValue) => {
@@ -186,7 +214,6 @@
     border: 1px solid $gray-200;
     border-radius: 8px;
     font-size: 14px;
-    font-family: 'IRANYekan';
     font-variant-numeric: normal;
     cursor: pointer;
     transition: all 0.2s;

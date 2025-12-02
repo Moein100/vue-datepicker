@@ -45,7 +45,9 @@
   "peerDependencies": {
     "vue": "^3.5.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "pinia": "^3.0.4"
+  },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
     "@vitejs/plugin-vue": "^6.0.1",

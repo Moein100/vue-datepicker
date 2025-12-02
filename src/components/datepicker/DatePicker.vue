@@ -27,7 +27,7 @@
   import DatepickerContent from '../datepicker/DatepickerContent.vue';
   import DatepickerHeader from '../datepicker/DatepickerHeader.vue';
   import BaseButton from '../base/BaseButton.vue';
-  import { useDatePickerLocale } from '@/composables/datepicker/useDatePickerLocale.js';
+import { useI18nStore } from '@/store/i18n';
 
   const props = defineProps({
     modelValue: {
@@ -64,24 +64,34 @@
     },
   });
 
-  const emit = defineEmits(['update:modelValue', 'confirm', 'open', 'close', 'change', 'update:locale']);
+  const emit = defineEmits([
+    'update:modelValue',
+    'confirm',
+    'open',
+    'close',
+    'change',
+    'update:locale',
+  ]);
 
+  const i18nStore = useI18nStore();
   const contentRef = ref(null);
-  const currentLocale = ref(props.locale);
-  const localeHelper = useDatePickerLocale(currentLocale.value);
+  const currentLocale = ref(props.locale || i18nStore.currentLocale);
 
-  watch(() => props.locale, (newLocale) => {
-    if (newLocale !== currentLocale.value) {
-      currentLocale.value = newLocale;
-      localeHelper.setLocale(newLocale);
-    }
-  });
+  watch(
+    () => props.locale,
+    (newLocale) => {
+      if (newLocale && newLocale !== currentLocale.value) {
+        currentLocale.value = newLocale;
+        i18nStore.setLocale(newLocale);
+      }
+    },
+  );
 
   watch(currentLocale, (newLocale) => {
-    localeHelper.setLocale(newLocale);
+    i18nStore.setLocale(newLocale);
   });
 
-  const confirmButtonText = computed(() => localeHelper.getText('confirmText'));
+  const confirmButtonText = computed(() => i18nStore.getText('confirmText'));
 
   function onLocaleChange(newLocale) {
     currentLocale.value = newLocale;

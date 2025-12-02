@@ -83,31 +83,19 @@ export const LOCALE_DEFINITIONS = {
     ],
     weekdays: ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
     numberSystem: 'latin',
-
-    ui: {
-      today: 'Today',
-      todayText: 'Today',
-      selectDate: 'Select date',
-      selectTime: 'Select time',
-      confirmText: 'Confirm',
-      cancelText: 'Cancel',
-      clearText: 'Clear',
-      hourText: 'Hour',
-      minuteText: 'Minute',
-      periodText: 'AM/PM',
-      selectedTimeText: 'Selected time',
-      startDate: 'Start date',
-      endDate: 'End date',
-      previousMonth: 'Previous month',
-      nextMonth: 'Next month',
-      previousYear: 'Previous year',
-      nextYear: 'Next year',
-      am: 'AM',
-      pm: 'PM',
-    },
-
-    confirmText: 'Confirm',
     todayText: 'Today',
+    selectDateText: 'Select date',
+    selectTimeText: 'Select time',
+    confirmText: 'Confirm',
+    cancelText: 'Cancel',
+    clearText: 'Clear',
+    hourText: 'Hour',
+    minuteText: 'Minute',
+    periodText: 'AM/PM',
+    selectedTimeText: 'Selected time',
+    startDateText: 'Start date',
+    endDateText: 'End date',
+    calendarType: 'gregorian',
   },
 
   hijri: {
@@ -156,6 +144,7 @@ export const LOCALE_DEFINITIONS = {
     selectedTimeText: 'الوقت المختار',
     startDateText: 'تاريخ البدء',
     endDateText: 'تاريخ الانتهاء',
+    calendarType: 'hijri',
   },
 
   chinese: {
@@ -206,6 +195,7 @@ export const LOCALE_DEFINITIONS = {
     selectedTimeText: '选定时间',
     startDateText: '开始日期',
     endDateText: '结束日期',
+    calendarType: 'gregorian',
   },
 };
 

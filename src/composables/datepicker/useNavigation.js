@@ -1,15 +1,30 @@
-import { ref, computed } from 'vue';
-import { jalaaliToday, jalaaliMonthLength } from '../../utils/datepicker/jalaali.js';
+import { ref, computed, watch } from 'vue';
 import { parseJalaaliDate } from '../../utils/datepicker/dateParser.js';
 import { VIEW_MODES, CALENDAR_CONFIG } from '../../constants/datepicker.js';
+import { useI18nStore } from '@/store/i18n.js';
+import { getCalendarAdapter } from '@/locales/adapters/createCalendarAdapterManager.js';
+
 
 export function useNavigation(initialDate = null) {
-  const parsed = parseJalaaliDate(initialDate);
-  const today = jalaaliToday();
+  const i18nStore = useI18nStore();
 
-  const currentYear = ref(parsed?.jy || today.jy);
-  const currentMonth = ref(parsed?.jm || today.jm);
+  const adapter = computed(() => getCalendarAdapter(i18nStore.calendarType));
+
+  const parsed = parseJalaaliDate(initialDate);
+  const today = adapter.value.getToday();
+
+  const currentYear = ref(parsed?.jy || parsed?.year || today.jy || today.year);
+  const currentMonth = ref(parsed?.jm || parsed?.month || today.jm || today.month);
   const currentView = ref(VIEW_MODES.DAYS);
+
+  watch(
+    () => i18nStore.calendarType,
+    () => {
+      const newToday = adapter.value.getToday();
+      currentYear.value = newToday.jy || newToday.year;
+      currentMonth.value = newToday.jm || newToday.month;
+    },
+  );
 
   const yearRange = computed(() => {
     const years = [];
@@ -24,7 +39,7 @@ export function useNavigation(initialDate = null) {
   });
 
   const daysInCurrentMonth = computed(() => {
-    return jalaaliMonthLength(currentYear.value, currentMonth.value);
+    return adapter.value.getDaysInMonth(currentYear.value, currentMonth.value);
   });
 
   function nextMonth() {
@@ -76,21 +91,22 @@ export function useNavigation(initialDate = null) {
   }
 
   function goToDate(date) {
-    if (date?.jy && date?.jm) {
-      currentYear.value = date.jy;
-      currentMonth.value = date.jm;
+    if ((date?.jy && date?.jm) || (date?.year && date?.month)) {
+      currentYear.value = date.jy || date.year;
+      currentMonth.value = date.jm || date.month;
       currentView.value = VIEW_MODES.DAYS;
     }
   }
 
   function goToToday() {
-    goToDate(today);
+    const newToday = adapter.value.getToday();
+    goToDate(newToday);
   }
 
   function reset() {
-    const initial = parseJalaaliDate(initialDate) || today;
-    currentYear.value = initial.jy;
-    currentMonth.value = initial.jm;
+    const initial = parseJalaaliDate(initialDate) || adapter.value.getToday();
+    currentYear.value = initial.jy || initial.year;
+    currentMonth.value = initial.jm || initial.month;
     currentView.value = VIEW_MODES.DAYS;
   }
 
