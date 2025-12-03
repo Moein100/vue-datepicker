@@ -1,6 +1,20 @@
 <template>
   <section class="datepicker">
-    <DatepickerHeader @close="handleClose" />
+    <DatepickerHeader
+      :current-view="navigation.currentView.value"
+      :current-month="navigation.currentMonth.value"
+      :current-year="navigation.currentYear.value"
+      :enable-locale-selector="enableLocaleSelector"
+      :locale="selectedLocale"
+      :navigation="navigation"
+      @close="handleClose"
+      @toggle-view="toggleView"
+      @update:locale="handleLocaleUpdate"
+      @select-month="selectMonth"
+      @select-year="selectYear"
+      @next-year-range="nextYearRange"
+      @prev-year-range="prevYearRange"
+    />
     <DatepickerContent
       :locale="currentLocale"
       :mode="props.mode"
@@ -10,6 +24,7 @@
       :enable-time="props.enableTime"
       :time-format="props.timeFormat"
       :enable-locale-selector="props.enableLocaleSelector"
+      :current-view="navigation.currentView.value"
       @update:selected-date="onDateSelect"
       @update:range-selection="onRangeSelect"
       @update:multiple-selection="onMultipleSelect"
@@ -27,7 +42,9 @@
   import DatepickerContent from '../datepicker/DatepickerContent.vue';
   import DatepickerHeader from '../datepicker/DatepickerHeader.vue';
   import BaseButton from '../base/BaseButton.vue';
-import { useI18nStore } from '@/store/i18n';
+  import { useI18nStore } from '@/store/i18n';
+  import { useNavigation } from '@/composables/datepicker/useNavigation.js';
+  import { CALENDAR_CONFIG } from '@/constants/datepicker';
 
   const props = defineProps({
     modelValue: {
@@ -74,8 +91,10 @@ import { useI18nStore } from '@/store/i18n';
   ]);
 
   const i18nStore = useI18nStore();
+  const selectedLocale = ref(props.locale || i18nStore.currentLocale);
   const contentRef = ref(null);
   const currentLocale = ref(props.locale || i18nStore.currentLocale);
+  const navigation = useNavigation(props.modelValue);
 
   watch(
     () => props.locale,
@@ -124,6 +143,37 @@ import { useI18nStore } from '@/store/i18n';
     emit('close');
   }
 
+  function handleLocaleUpdate(newLocale) {
+    selectedLocale.value = newLocale;
+    currentLocale.value = newLocale;
+    i18nStore.setLocale(newLocale);
+    emit('update:locale', newLocale);
+  }
+
+  function toggleView(view) {
+    navigation.toggleView(view);
+  }
+
+  function selectMonth(month) {
+    navigation.setMonth(month);
+  }
+
+  function selectYear(year) {
+    navigation.setYear(year);
+  }
+
+  function nextYearRange() {
+    for (let i = 0; i < CALENDAR_CONFIG.YEARS_TO_SHOW; i++) {
+      navigation.nextYear();
+    }
+  }
+
+  function prevYearRange() {
+    for (let i = 0; i < CALENDAR_CONFIG.YEARS_TO_SHOW; i++) {
+      navigation.prevYear();
+    }
+  }
+
   onMounted(() => {
     emit('open');
   });
@@ -139,6 +189,6 @@ import { useI18nStore } from '@/store/i18n';
     width: 360px;
     padding: 24px 16px 16px 16px;
     border-radius: $radius-8;
-    @include customFlex(column, space-between, 12px);
+    @include customFlex(column, space-between, 20px);
   }
 </style>
