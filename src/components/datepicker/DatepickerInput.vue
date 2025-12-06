@@ -29,6 +29,7 @@
             :locale="currentLocale"
             :enable-time="enableTime"
             :time-format="timeFormat"
+            :enable-locale-selector="enableLocaleSelector"
             @confirm="handleConfirm"
             @close="closePicker"
             @change="handleChange"
@@ -47,7 +48,7 @@
   import BaseInput from '../base/BaseInput.vue';
   import BaseButton from '../base/BaseButton.vue';
   import { toLocalizedNumbers } from '@/locales';
-import { useI18nStore } from '@/store/i18n';
+  import { useI18nStore } from '@/store/i18n';
 
   const props = defineProps({
     modelValue: {
@@ -86,6 +87,10 @@ import { useI18nStore } from '@/store/i18n';
     timeFormat: {
       type: [String, Number],
       default: 24,
+    },
+    enableLocaleSelector: {
+      type: Boolean,
+      default: true,
     },
   });
 
