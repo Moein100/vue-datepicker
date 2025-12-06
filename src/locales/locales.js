@@ -32,7 +32,6 @@ export const LOCALE_DEFINITIONS = {
       'اسف',
     ],
     weekdays: ['شنبه', '۱شنبه', '۲شنبه', '۳شنبه', '۴شنبه', '۵شنبه', 'جمعه'],
-
     numberSystem: 'persian',
     todayText: 'امروز',
     selectDateText: 'تاریخ را انتخاب نمایید',

@@ -1,7 +1,7 @@
 <script setup>
   import { ref, watch } from 'vue';
   import DatepickerInput from './components/datepicker/DatepickerInput.vue';
-import { useI18nStore } from './store/i18n';
+  import { useI18nStore } from './store/i18n';
 
   const i18nStore = useI18nStore();
   const selectedDateTime = ref(null);

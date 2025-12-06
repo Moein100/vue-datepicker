@@ -126,7 +126,7 @@
   const fontFamily = computed(() => {
     const fontMap = {
       jalali: 'IRANYekan',
-      hijri: 'IRANYekan',
+      hijri: ' Arial, sans-serif',
       gregorian: 'Arial, sans-serif',
       chinese: 'Microsoft YaHei, SimHei, sans-serif',
     };

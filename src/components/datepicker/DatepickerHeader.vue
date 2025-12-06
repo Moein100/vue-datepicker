@@ -35,6 +35,7 @@
       size="small"
       class="datepicker__controls-btn"
       @click="onToggleView('years')"
+      :style="{ fontFamily: fontFamily }"
     >
       <template #icon-right>
         <ArrowDownIcon :width="24" :height="24" />
@@ -44,7 +45,7 @@
   </div>
 
   <template v-if="props.currentView === 'years'">
-    <div class="datepicker-content__years-controls">
+    <div class="datepicker-content__years-controls" :style="{ fontFamily: fontFamily }">
       <ArrowRightIcon :width="24" :height="24" @click="prevYearRange" />
       <p class="datepicker-content__years-controls-year">
         {{ formatNumber(navigation.currentYear.value) }}
@@ -57,6 +58,7 @@
         :key="year"
         variant="secondary"
         size="small"
+        :style="{ fontFamily: fontFamily }"
         :class="{
           'datepicker-content__years-btn--active': navigation.currentYear.value === year,
         }"
@@ -146,6 +148,16 @@
   const MONTHS = computed(() =>
     Array.from({ length: CALENDAR_CONFIG.MONTHS_IN_YEAR }, (_, i) => i + 1),
   );
+
+  const fontFamily = computed(() => {
+    const fontMap = {
+      jalali: 'IRANYekan',
+      hijri: ' Arial, sans-serif',
+      gregorian: 'Arial, sans-serif',
+      chinese: 'Microsoft YaHei, SimHei, sans-serif',
+    };
+    return fontMap[i18nStore.calendarType] || 'Arial, sans-serif';
+  });
 
   function getMonthName(month) {
     return i18nStore.getMonthName(month);
