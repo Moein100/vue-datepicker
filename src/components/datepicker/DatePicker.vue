@@ -23,6 +23,7 @@
       :time-format="props.timeFormat"
       :enable-locale-selector="props.enableLocaleSelector"
       :current-view="navigation.currentView.value"
+      :navigation="navigation"
       @update:selected-date="onDateSelect"
       @update:range-selection="onRangeSelect"
       @update:multiple-selection="onMultipleSelect"

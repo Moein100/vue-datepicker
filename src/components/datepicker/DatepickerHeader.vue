@@ -1,5 +1,5 @@
 <template>
-  <section class="datepicker__header" :style="{ fontFamily: fontFamily }">
+  <div class="datepicker__header" :style="{ fontFamily: fontFamily }">
     <CloseButtonIcon
       :width="24"
       :height="24"
@@ -7,7 +7,7 @@
       @click="$emit('close')"
     />
     <p>{{ i18nStore.getText('selectDateText') }}</p>
-  </section>
+  </div>
 
   <div v-if="currentView !== 'years'" class="datepicker__controls">
     <DatePickerLocaleSelector
@@ -218,16 +218,19 @@
   }
 
   .datepicker-content {
+    direction: rtl;
     &__months,
     &__years {
+      direction: ltr;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       row-gap: 12px;
       column-gap: 29px;
       width: 100%;
-      max-height: 200px;
+      max-height: 240px;
       overflow-y: auto;
       overflow-x: hidden;
+      padding-right: 12px;
       &::-webkit-scrollbar {
         width: 2px;
       }

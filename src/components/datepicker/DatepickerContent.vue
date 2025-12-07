@@ -70,6 +70,7 @@
     timeFormat: { type: [String, Number], default: 24 },
     enableLocaleSelector: { type: Boolean, default: true },
     currentView: { type: String, default: 'days' },
+    navigation: { type: Object, default: null },
   });
 
   const emit = defineEmits([
@@ -98,7 +99,7 @@
     },
   );
 
-  const navigation = useNavigation(props.initialValue);
+  const navigation = props.navigation || useNavigation(props.initialValue);
   const selection = createSelection(props.mode, props.initialValue);
   const constraints = useDateConstraints({ minDate: props.minDate, maxDate: props.maxDate });
   const time = props.enableTime
