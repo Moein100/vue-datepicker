@@ -30,9 +30,14 @@ export default defineConfig(({ mode }) => {
           name: 'VueDatepicker',
           fileName: (format) => `vue-datepicker.${format}.js`,
         },
+        minify: 'esbuild',
+        target: 'es2015',
+        sourcemap: false,
+        cssCodeSplit: true,
         rollupOptions: {
           external: ['vue'],
           output: {
+            exports: 'named',
             globals: { vue: 'Vue' },
             assetFileNames: (assetInfo) =>
               assetInfo.names && assetInfo.names[0] === 'style.css'
@@ -40,8 +45,17 @@ export default defineConfig(({ mode }) => {
                 : assetInfo.names
                   ? assetInfo.names[0]
                   : 'asset',
+            manualChunks: undefined,
+            compact: true,
+          },
+          treeshake: {
+            moduleSideEffects: false,
+            propertyReadSideEffects: false,
+            tryCatchDeoptimization: false,
           },
         },
+        chunkSizeWarningLimit: 500,
+        reportCompressedSize: true,
       },
     };
   }
@@ -49,5 +63,18 @@ export default defineConfig(({ mode }) => {
   return {
     ...commonConfig,
     plugins: [...commonConfig.plugins, vueDevTools()],
+    build: {
+      minify: 'esbuild',
+      target: 'es2015',
+      sourcemap: true,
+      cssCodeSplit: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['vue'],
+          },
+        },
+      },
+    },
   };
 });
