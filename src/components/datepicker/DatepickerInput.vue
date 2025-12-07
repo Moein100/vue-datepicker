@@ -1,5 +1,5 @@
 <template>
-  <section class="datepicker">
+  <div class="datepicker">
     <div class="datepicker__input-container">
       <BaseInput
         ref="inputRef"
@@ -41,7 +41,7 @@
         </div>
       </div>
     </Transition>
-  </section>
+  </div>
 </template>
 
 <script setup>
@@ -197,13 +197,8 @@
     closePicker();
   }
 
-  function handleChange(date) {
-    emit('change', date);
-  }
-
-  function handleLocaleChange(newLocale) {
-    emit('update:locale', newLocale);
-  }
+  const handleChange = (date) => emit('change', date);
+  const handleLocaleChange = (newLocale) => emit('update:locale', newLocale);
 
   watch(
     () => props.modelValue,
