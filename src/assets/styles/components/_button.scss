@@ -1,6 +1,6 @@
 @use '../abstracts' as *;
 
-.btn {
+.button {
   @include flex(inline-flex, center, center, 8px);
   border: 0;
   border-radius: $radius-12;

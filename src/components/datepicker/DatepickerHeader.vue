@@ -56,6 +56,7 @@
       <BaseButton
         v-for="year in navigation.yearRange.value"
         :key="year"
+        :ref="(el) => setYearRef(el, year)"
         variant="secondary"
         size="small"
         :style="{ fontFamily: fontFamily }"
@@ -86,7 +87,7 @@
 </template>
 
 <script setup>
-  import { computed } from 'vue';
+  import { computed, ref, watch, nextTick } from 'vue';
   import CloseButtonIcon from '../icons/CloseButtonIcon.vue';
   import BaseButton from '../base/BaseButton.vue';
   import ArrowDownIcon from '../icons/ArrowDownIcon.vue';
@@ -133,6 +134,8 @@
   ]);
 
   const i18nStore = useI18nStore();
+  const yearButtonRefs = ref({});
+
   const selectedLocale = computed({
     get() {
       return props.locale || i18nStore.currentLocale;
@@ -145,6 +148,16 @@
   const availableLocales = computed(() => i18nStore.availableLocales);
   const MONTHS = computed(() =>
     Array.from({ length: CALENDAR_CONFIG.MONTHS_IN_YEAR }, (_, i) => i + 1),
+  );
+
+  watch(
+    () => props.currentView,
+    async (newView) => {
+      if (newView === 'years') {
+        await nextTick();
+        scrollToCurrentYear();
+      }
+    },
   );
 
   const fontFamily = computed(() => {
@@ -186,6 +199,19 @@
   function prevYearRange() {
     for (let i = 0; i < CALENDAR_CONFIG.YEARS_TO_SHOW; i++) {
       props.navigation.prevYear();
+    }
+  }
+
+  function setYearRef(el, year) {
+    if (el) {
+      yearButtonRefs.value[year] = el;
+    }
+  }
+
+  function scrollToCurrentYear() {
+    const currentYearEl = yearButtonRefs.value[props.navigation.currentYear.value];
+    if (currentYearEl && currentYearEl.$el) {
+      currentYearEl.$el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
 </script>
