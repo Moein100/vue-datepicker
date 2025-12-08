@@ -136,17 +136,118 @@
   const formattedDate = computed(() => {
     if (!internalValue.value) return '';
 
+    const normalizeValue = (value, defaultValue = 0) => {
+      if (typeof value === 'number' && !isNaN(value)) {
+        return value;
+      }
+      if (typeof value === 'string') {
+        const parsed = parseInt(value, 10);
+        return !isNaN(parsed) ? parsed : defaultValue;
+      }
+      if (typeof value === 'object' && value !== null) {
+        console.warn('[DatepickerInput] Invalid date field (object):', value);
+        return defaultValue;
+      }
+      return defaultValue;
+    };
+
+    const sanitizeDateObject = (date) => {
+      if (!date || typeof date !== 'object') return null;
+
+      if ('jy' in date || 'jm' in date || 'jd' in date) {
+        const sanitized = {
+          jy: normalizeValue(date.jy, 1403),
+          jm: normalizeValue(date.jm, 1),
+          jd: normalizeValue(date.jd, 1),
+        };
+
+        if ('hour' in date || 'minute' in date) {
+          sanitized.hour = normalizeValue(date.hour, 0);
+          sanitized.minute = normalizeValue(date.minute, 0);
+        }
+
+        return sanitized;
+      }
+
+      if ('year' in date || 'month' in date || 'day' in date) {
+        const sanitized = {
+          year: normalizeValue(date.year, 2024),
+          month: normalizeValue(date.month, 1),
+          day: normalizeValue(date.day, 1),
+        };
+
+        if ('hour' in date || 'minute' in date) {
+          sanitized.hour = normalizeValue(date.hour, 0);
+          sanitized.minute = normalizeValue(date.minute, 0);
+        }
+
+        return sanitized;
+      }
+
+      return null;
+    };
+
+    const isValidDateObject = (date) => {
+      if (!date || typeof date !== 'object') return false;
+
+      if ('jy' in date && 'jm' in date && 'jd' in date) {
+        return (
+          typeof date.jy === 'number' &&
+          typeof date.jm === 'number' &&
+          typeof date.jd === 'number' &&
+          !isNaN(date.jy) &&
+          !isNaN(date.jm) &&
+          !isNaN(date.jd)
+        );
+      }
+
+      if ('year' in date && 'month' in date && 'day' in date) {
+        return (
+          typeof date.year === 'number' &&
+          typeof date.month === 'number' &&
+          typeof date.day === 'number' &&
+          !isNaN(date.year) &&
+          !isNaN(date.month) &&
+          !isNaN(date.day)
+        );
+      }
+
+      return false;
+    };
+
     const formatSingle = (date) => {
-      const { jy, jm, jd, hour, minute } = date;
+      let processedDate = date;
+
+      if (!isValidDateObject(date)) {
+        console.warn('[DatepickerInput] Invalid date format, attempting to sanitize:', date);
+        processedDate = sanitizeDateObject(date);
+
+        if (!processedDate) {
+          console.error('[DatepickerInput] Could not sanitize date:', date);
+          return '';
+        }
+      }
+
+      const { jy, jm, jd, year, month, day, hour, minute } = processedDate;
       const numberSystem = i18nStore.numberSystem;
 
+      const y = jy ?? year;
+      const m = jm ?? month;
+      const d = jd ?? day;
+
       let str = props.format
-        .replace('YYYY', jy)
-        .replace('MM', String(jm).padStart(2, '0'))
-        .replace('DD', String(jd).padStart(2, '0'));
+        .replace('YYYY', String(y))
+        .replace('MM', String(m).padStart(2, '0'))
+        .replace('DD', String(d).padStart(2, '0'));
       str = toLocalizedNumbers(str, numberSystem);
 
-      if (props.enableTime && hour != null && minute != null) {
+      if (
+        props.enableTime &&
+        hour != null &&
+        minute != null &&
+        typeof hour === 'number' &&
+        typeof minute === 'number'
+      ) {
         const h = toLocalizedNumbers(String(hour).padStart(2, '0'), numberSystem);
         const m = toLocalizedNumbers(String(minute).padStart(2, '0'), numberSystem);
         str += ` ${h}:${m}`;
@@ -154,18 +255,49 @@
       return str;
     };
 
-    if (props.mode === 'range') {
-      const { start, end } = internalValue.value || {};
-      if (!start) return '';
-      return end ? `${formatSingle(start)} - ${formatSingle(end)}` : formatSingle(start);
-    }
+    try {
+      if (props.mode === 'range') {
+        const { start, end } = internalValue.value || {};
+        if (!start) return '';
 
-    if (props.mode === 'multiple') {
-      if (!Array.isArray(internalValue.value) || !internalValue.value.length) return '';
-      return internalValue.value.map(formatSingle).join('، ');
-    }
+        let sanitizedStart = start;
+        if (!isValidDateObject(start)) {
+          sanitizedStart = sanitizeDateObject(start);
+          if (!sanitizedStart) return '';
+        }
 
-    return formatSingle(internalValue.value);
+        if (end) {
+          let sanitizedEnd = end;
+          if (!isValidDateObject(end)) {
+            sanitizedEnd = sanitizeDateObject(end);
+          }
+
+          if (sanitizedEnd) {
+            return `${formatSingle(sanitizedStart)} - ${formatSingle(sanitizedEnd)}`;
+          }
+        }
+        return formatSingle(sanitizedStart);
+      }
+
+      if (props.mode === 'multiple') {
+        if (!Array.isArray(internalValue.value) || !internalValue.value.length) return '';
+
+        const processedDates = internalValue.value
+          .map((date) => {
+            if (isValidDateObject(date)) return date;
+            return sanitizeDateObject(date);
+          })
+          .filter((date) => date !== null);
+
+        if (!processedDates.length) return '';
+        return processedDates.map(formatSingle).join('، ');
+      }
+
+      return formatSingle(internalValue.value);
+    } catch (error) {
+      console.error('[DatepickerInput] Error formatting date:', error);
+      return '';
+    }
   });
 
   const togglePicker = () => {
