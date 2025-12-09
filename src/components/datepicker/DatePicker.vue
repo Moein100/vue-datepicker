@@ -1,5 +1,5 @@
 <template>
-  <div class="datepicker">
+  <div class="datepicker" :style="{ fontFamily }">
     <DatepickerHeader
       :current-view="navigation.currentView.value"
       :current-month="navigation.currentMonth.value"
@@ -86,6 +86,18 @@
       i18nStore.setLocale(value);
       emit('update:locale', value);
     },
+  });
+
+  const DEFAULT_FONT_MAP = {
+    jalali: 'IRANYekan',
+    hijri: 'IRANYekan',
+    gregorian: 'Arial, sans-serif',
+    chinese: 'Microsoft YaHei, SimHei, sans-serif',
+  };
+
+  const fontFamily = computed(() => {
+    const fonts = { ...DEFAULT_FONT_MAP, ...props.fontConfig };
+    return fonts[i18nStore.calendarType] || 'Arial, sans-serif';
   });
 
   const confirmButtonText = computed(() => i18nStore.getText('confirmText'));

@@ -125,7 +125,7 @@
       font-size: 12px;
       font-weight: 400;
       transition: background-color 0.2s ease;
-      font-family: 'IRANYekan';
+      font-family: inherit;
     }
   }
 
