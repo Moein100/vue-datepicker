@@ -7,7 +7,6 @@ import { visualizer } from 'rollup-plugin-visualizer';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// CSS به JS تزریق می‌کند
 function cssInjectedByJsPlugin() {
   let cssCode = '';
   return {
@@ -84,19 +83,19 @@ export default defineConfig({
       name: 'VueDatepicker',
       fileName: format => `vue-datepicker.${format}.js`,
     },
-    minify: 'esbuild', // سریع و سبک
+    minify: 'esbuild', 
     sourcemap: false,
     cssCodeSplit: false,
-    assetsInlineLimit: 0, // فونت و تصاویر inline نشوند
+    assetsInlineLimit: 0, 
     rollupOptions: {
-      external: ['vue'], // Vue را external می‌کند
+      external: ['vue'],
       output: {
         globals: { vue: 'Vue' },
         exports: 'named',
         compact: true,
         assetFileNames: assetInfo => {
           if (assetInfo.name?.endsWith('.woff2')) {
-            return 'fonts/[name][extname]'; // فونت‌ها جدا
+            return 'fonts/[name][extname]'; 
           }
           return '[name][extname]';
         },

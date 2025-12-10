@@ -1,20 +1,6 @@
 @use 'sass:map';
 @use './variables' as *;
 
-$color-map: (
-  'primary-600': map.get(map.get($colors, primary), 600),
-  'primary-500': map.get(map.get($colors, primary), 500),
-  'primary-400': map.get(map.get($colors, primary), 400),
-  'primary-300': map.get(map.get($colors, primary), 300),
-  'primary-200': map.get(map.get($colors, primary), 200),
-  'gray-300': map.get(map.get($colors, gray), 300),
-  'gray-200': map.get(map.get($colors, gray), 200),
-  'gray-100': map.get(map.get($colors, gray), 100),
-  'gray-50': map.get(map.get($colors, gray), 50),
-  'text-primary': map.get(map.get($colors, text), primary),
-  'text-white': map.get(map.get($colors, text), white)
-);
-
 @function get-color($group, $key) {
   $var-name: --datepicker-#{$group}-#{$key};
   $default: map.get(map.get($colors, $group), $key);
