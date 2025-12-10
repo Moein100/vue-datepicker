@@ -1,18 +1,14 @@
+@use 'sass:map';
 @use './variables' as *;
+@use './functions' as *;
 
-@mixin flex(
-  $direction: row,
-  $justifyContent: flex-start,
-  $alignItem: center,
-  $gap: 0,
-  $flexWrap: nowrap
-) {
+@mixin flex($direction: row, $justify: flex-start, $align: center, $gap: 0, $wrap: nowrap) {
   display: flex;
   flex-direction: $direction;
-  justify-content: $justifyContent;
-  align-items: $alignItem;
+  justify-content: $justify;
+  align-items: $align;
   gap: $gap;
-  flex-wrap: $flexWrap;
+  flex-wrap: $wrap;
 }
 
 @mixin datepicker-grid($columns: 7, $gap: 16px, $column-gap: null) {
@@ -20,32 +16,32 @@
   grid-template-columns: repeat($columns, 1fr);
   gap: $gap;
 
-  @if $column-gap {
+  @if $column-gap != null {
     column-gap: $column-gap;
     row-gap: $gap;
   }
 }
 
 @mixin day-button-base {
-  border-radius: var(--datepicker-radius-10);
-  font-size: var(--datepicker-font-size-14);
-  font-weight: var(--datepicker-font-weight-normal);
+  border-radius: radius(10);
+  font-size: font-size(14);
+  font-weight: font-weight(normal);
   width: 100%;
-  height: var(--datepicker-day-size);
+  height: size(day-size);
   cursor: pointer;
-  @include flex(column, start, center);
+  @include flex(column, center, center);
   position: relative;
   font-family: inherit;
 }
 
 @mixin day-selected {
-  background-color: var(--datepicker-primary-500);
-  color: var(--datepicker-white);
-  border-radius: var(--datepicker-radius-10);
+  background-color: get-color(primary, 500);
+  color: get-color(text, white);
+  border-radius: radius(10);
 }
 
 @mixin day-range-marker {
-  color: var(--datepicker-white);
+  color: get-color(text, white);
   z-index: 1;
 
   &::before {
@@ -54,29 +50,33 @@
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: var(--datepicker-day-size);
-    height: var(--datepicker-day-size);
-    background-color: var(--datepicker-primary-500);
-    border-radius: var(--datepicker-radius-10);
+    width: size(day-size);
+    height: size(day-size);
+    background-color: get-color(primary, 500);
+    border-radius: radius(10);
     z-index: -1;
   }
 }
 
 @mixin custom-scrollbar {
   &::-webkit-scrollbar {
-    width: var(--datepicker-scrollbar-width);
+    width: scroll(width);
   }
 
   &::-webkit-scrollbar-track {
-    background: var(--datepicker-scrollbar-track-color);
-    border-radius: var(--datepicker-radius-10);
+    background: scroll(track-color);
+    border-radius: radius(10);
   }
 
   &::-webkit-scrollbar-thumb {
-    background: var(--datepicker-scrollbar-thumb-color);
-    border-radius: var(--datepicker-radius-10);
-    height: var(--datepicker-scrollbar-thumb-height);
-    width: var(--datepicker-scrollbar-width);
+    background: scroll(thumb-color);
+    border-radius: radius(10);
+    height: scroll(thumb-height);
+    width: scroll(width);
+
+    &:hover {
+      background: color.adjust(scroll(thumb-color), 10%);
+    }
   }
 }
 
@@ -85,18 +85,18 @@
   background: none;
   cursor: pointer;
   font-family: inherit;
-  transition: all var(--datepicker-transition-duration) var(--datepicker-transition-timing);
+  transition: transition();
 }
 
 @mixin button-active {
-  background-color: var(--datepicker-primary-500);
-  color: var(--datepicker-white);
+  background-color: get-color(primary, 500);
+  color: get-color(text, white);
 }
 
 @mixin animation(
   $name,
-  $duration: map-get($transition, duration),
-  $timing: map-get($transition, timing),
+  $duration: map.get($transition, duration),
+  $timing: map.get($transition, timing),
   $fill-mode: forwards
 ) {
   animation-name: $name;

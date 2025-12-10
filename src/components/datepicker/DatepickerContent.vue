@@ -302,6 +302,10 @@
         color: get-color(primary, 400);
         font-weight: font-weight(normal);
         font-size: font-size(10);
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        left: 0;
       }
     }
   }

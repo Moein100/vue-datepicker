@@ -21,6 +21,7 @@
   <div class="container">
     <div class="demo-section">
       <DatepickerHeadless
+        mode="range"
         v-model="simpleDate"
         :enable-time="true"
         :time-format="24"
