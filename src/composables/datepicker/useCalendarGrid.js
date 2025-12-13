@@ -19,15 +19,21 @@ export function useCalendarGrid(options) {
   const today = computed(() => adapter.value.getToday());
 
   const resolveMonthYear = (offset) => {
+    if (offset === 0) {
+      return { y: year.value, m: month.value };
+    }
+
     let y = year.value;
     let m = month.value + offset;
 
-    if (m < 1) {
-      m = 12;
-      y--;
-    } else if (m > 12) {
-      m = 1;
+    while (m > 12) {
+      m -= 12;
       y++;
+    }
+
+    while (m < 1) {
+      m += 12;
+      y--;
     }
 
     return { y, m };

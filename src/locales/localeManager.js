@@ -1,4 +1,15 @@
 import { LOCALE_DEFINITIONS } from './localesDefinitions';
+import { faIR } from 'date-fns-jalali/locale';
+import { enUS, ar, zhCN } from 'date-fns/locale';
+import { format as formatJalali } from 'date-fns-jalali';
+import { format as formatGregorian } from 'date-fns';
+
+const DATE_FNS_LOCALES = {
+  jalali: faIR,
+  gregorian: enUS,
+  hijri: ar,
+  chinese: zhCN,
+};
 
 export function createLocaleManager(initialLocales = {}) {
   const locales = new Map(Object.entries(initialLocales));
@@ -84,18 +95,82 @@ export function createLocaleManager(initialLocales = {}) {
       }));
     },
 
+    /**
+     * Get month name using date-fns package
+     * @param {number} month - Month number (1-12)
+     * @param {string} code - Locale code
+     * @returns {string} Month name from date-fns
+     */
     getMonthName(month, code) {
-      const locale = this.get(code || defaultLocaleCode);
+      const localeCode = code || defaultLocaleCode;
+      const dateFnsLocale = DATE_FNS_LOCALES[localeCode];
+
+      if (dateFnsLocale?.localize?.month) {
+        try {
+          return dateFnsLocale.localize.month(month - 1, { width: 'wide' });
+        } catch (e) {
+          const locale = this.get(localeCode);
+          return locale?.months?.[month - 1] || '';
+        }
+      }
+
+      const locale = this.get(localeCode);
       return locale?.months?.[month - 1] || '';
     },
 
+    /**
+     * Get weekday name using date-fns package
+     * @param {number} weekday - Weekday number (0-6, where 0 is Saturday)
+     * @param {string} code - Locale code
+     * @returns {string} Weekday name from date-fns
+     */
     getWeekdayName(weekday, code) {
-      const locale = this.get(code || defaultLocaleCode);
+      const localeCode = code || defaultLocaleCode;
+
+      // For our calendar system, 0 = Saturday, so we need to adjust
+      // date-fns uses 0 = Sunday, so Saturday is 6
+      const dateFnsLocale = DATE_FNS_LOCALES[localeCode];
+
+      if (dateFnsLocale?.localize?.day) {
+        try {
+          const dateFnsWeekday = weekday === 0 ? 6 : weekday - 1;
+          return dateFnsLocale.localize.day(dateFnsWeekday, { width: 'short' });
+        } catch (e) {
+          const locale = this.get(localeCode);
+          return locale?.weekdays?.[weekday] || locale?.weekDays?.[weekday] || '';
+        }
+      }
+
+      const locale = this.get(localeCode);
       return locale?.weekdays?.[weekday] || locale?.weekDays?.[weekday] || '';
     },
 
+    /**
+     * Get full weekday name using date-fns package
+     * @param {number} weekday - Weekday number (0-6, where 0 is Saturday)
+     * @param {string} code - Locale code
+     * @returns {string} Full weekday name from date-fns
+     */
     getWeekdayFullName(weekday, code) {
-      const locale = this.get(code || defaultLocaleCode);
+      const localeCode = code || defaultLocaleCode;
+      const dateFnsLocale = DATE_FNS_LOCALES[localeCode];
+
+      if (dateFnsLocale?.localize?.day) {
+        try {
+          const dateFnsWeekday = weekday === 0 ? 6 : weekday - 1;
+          return dateFnsLocale.localize.day(dateFnsWeekday, { width: 'wide' });
+        } catch (e) {
+          const locale = this.get(localeCode);
+          return (
+            locale?.weekdaysFull?.[weekday] ||
+            locale?.weekdays?.[weekday] ||
+            locale?.weekDays?.[weekday] ||
+            ''
+          );
+        }
+      }
+
+      const locale = this.get(localeCode);
       return (
         locale?.weekdaysFull?.[weekday] ||
         locale?.weekdays?.[weekday] ||
@@ -123,6 +198,38 @@ export function createLocaleManager(initialLocales = {}) {
     getCalendarType(code) {
       const locale = this.get(code || defaultLocaleCode);
       return locale?.calendarType || 'jalali';
+    },
+
+    /**
+     * Get the date-fns locale object for formatting
+     * @param {string} code - Locale code
+     * @returns {Locale} date-fns locale object
+     */
+    getDateFnsLocale(code) {
+      const localeCode = code || defaultLocaleCode;
+      return DATE_FNS_LOCALES[localeCode] || DATE_FNS_LOCALES.jalali;
+    },
+
+    /**
+     * Format a date using date-fns with the appropriate locale
+     * @param {Date} date - Date to format
+     * @param {string} formatStr - Format string
+     * @param {string} code - Locale code
+     * @returns {string} Formatted date string
+     */
+    formatDate(date, formatStr, code) {
+      const localeCode = code || defaultLocaleCode;
+      const dateFnsLocale = this.getDateFnsLocale(localeCode);
+
+      try {
+        if (localeCode === 'jalali') {
+          return formatJalali(date, formatStr, { locale: dateFnsLocale });
+        } else {
+          return formatGregorian(date, formatStr, { locale: dateFnsLocale });
+        }
+      } catch (e) {
+        return '';
+      }
     },
   };
 }

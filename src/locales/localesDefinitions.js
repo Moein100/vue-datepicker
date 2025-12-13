@@ -1,5 +1,9 @@
+import { faIR } from 'date-fns-jalali/locale';
+import { enUS, ar, zhCN } from 'date-fns/locale';
+import { createLocaleFromDateFns } from '@/helper/createLocaleFromDateFns';
+
 export const LOCALE_DEFINITIONS = {
-  jalali: {
+  jalali: createLocaleFromDateFns(faIR, {
     code: 'jalali',
     name: 'شمسی',
     direction: 'rtl',
@@ -46,9 +50,9 @@ export const LOCALE_DEFINITIONS = {
     startDateText: 'تاریخ شروع',
     endDateText: 'تاریخ پایان',
     calendarType: 'jalali',
-  },
+  }),
 
-  gregorian: {
+  gregorian: createLocaleFromDateFns(enUS, {
     code: 'gregorian',
     name: 'miladi',
     direction: 'ltr',
@@ -95,9 +99,9 @@ export const LOCALE_DEFINITIONS = {
     startDateText: 'Start date',
     endDateText: 'End date',
     calendarType: 'gregorian',
-  },
+  }),
 
-  hijri: {
+  hijri: createLocaleFromDateFns(ar, {
     code: 'hijri',
     name: 'hijri',
     direction: 'rtl',
@@ -144,9 +148,9 @@ export const LOCALE_DEFINITIONS = {
     startDateText: 'تاريخ البدء',
     endDateText: 'تاريخ الانتهاء',
     calendarType: 'hijri',
-  },
+  }),
 
-  chinese: {
+  chinese: createLocaleFromDateFns(zhCN, {
     code: 'chinese',
     name: 'chinese',
     direction: 'ltr',
@@ -195,7 +199,7 @@ export const LOCALE_DEFINITIONS = {
     startDateText: '开始日期',
     endDateText: '结束日期',
     calendarType: 'gregorian',
-  },
+  }),
 };
 
 export function getLocaleDefinition(localeCode) {
@@ -204,4 +208,24 @@ export function getLocaleDefinition(localeCode) {
 
 export function getAvailableLocales() {
   return Object.values(LOCALE_DEFINITIONS);
+}
+
+/**
+ * Get month names from date-fns locale
+ * @param {string} localeCode - Locale code (jalali, gregorian, hijri, chinese)
+ * @returns {string[]} Array of month names
+ */
+export function getMonthNamesFromPackage(localeCode) {
+  const locale = LOCALE_DEFINITIONS[localeCode];
+  return locale?.months || [];
+}
+
+/**
+ * Get weekday names from date-fns locale
+ * @param {string} localeCode - Locale code (jalali, gregorian, hijri, chinese)
+ * @returns {string[]} Array of weekday names
+ */
+export function getWeekdayNamesFromPackage(localeCode) {
+  const locale = LOCALE_DEFINITIONS[localeCode];
+  return locale?.weekdays || [];
 }

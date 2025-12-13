@@ -1,50 +1,82 @@
+import { compareAsc, isSameDay, isBefore as dfIsBefore, isAfter as dfIsAfter } from 'date-fns';
+
+import { setYear, setMonth, setDate } from 'date-fns-jalali';
+
+function toNativeDate(date) {
+  if (!date) return null;
+
+  if ('jy' in date) {
+    let d = new Date();
+    d = setYear(d, date.jy);
+    d = setMonth(d, date.jm - 1);
+    d = setDate(d, date.jd);
+    return d;
+  }
+  if ('year' in date) {
+    return new Date(date.year, date.month - 1, date.day);
+  }
+
+  return null;
+}
+
 export function compareDates(a, b) {
-  if (!a || !b) return 0;
+  const da = toNativeDate(a);
+  const db = toNativeDate(b);
 
-  const yearA = a.jy || a.year;
-  const yearB = b.jy || b.year;
-  const monthA = a.jm || a.month;
-  const monthB = b.jm || b.month;
-  const dayA = a.jd || a.day;
-  const dayB = b.jd || b.day;
+  if (!da || !db) return 0;
 
-  if (yearA !== yearB) return yearA - yearB;
-  if (monthA !== monthB) return monthA - monthB;
-  return dayA - dayB;
+  return compareAsc(da, db);
 }
 
 export function isSameDate(a, b) {
-  if (!a || !b) return false;
+  const da = toNativeDate(a);
+  const db = toNativeDate(b);
 
-  const yearA = a.jy || a.year;
-  const yearB = b.jy || b.year;
-  const monthA = a.jm || a.month;
-  const monthB = b.jm || b.month;
-  const dayA = a.jd || a.day;
-  const dayB = b.jd || b.day;
+  if (!da || !db) return false;
 
-  return yearA === yearB && monthA === monthB && dayA === dayB;
+  return isSameDay(da, db);
 }
 
 export function isBefore(a, b) {
-  return compareDates(a, b) < 0;
+  const da = toNativeDate(a);
+  const db = toNativeDate(b);
+
+  if (!da || !db) return false;
+
+  return dfIsBefore(da, db);
 }
 
 export function isAfter(a, b) {
-  return compareDates(a, b) > 0;
+  const da = toNativeDate(a);
+  const db = toNativeDate(b);
+
+  if (!da || !db) return false;
+
+  return dfIsAfter(da, db);
 }
 
 export function isBetween(date, start, end) {
-  if (!date || !start || !end) return false;
-  return compareDates(date, start) >= 0 && compareDates(date, end) <= 0;
+  const d = toNativeDate(date);
+  const s = toNativeDate(start);
+  const e = toNativeDate(end);
+
+  if (!d || !s || !e) return false;
+
+  return compareAsc(d, s) >= 0 && compareAsc(d, e) <= 0;
 }
 
 export function isBetweenExclusive(date, start, end) {
-  if (!date || !start || !end) return false;
-  return compareDates(date, start) > 0 && compareDates(date, end) < 0;
+  const d = toNativeDate(date);
+  const s = toNativeDate(start);
+  const e = toNativeDate(end);
+
+  if (!d || !s || !e) return false;
+
+  return compareAsc(d, s) > 0 && compareAsc(d, e) < 0;
 }
 
 export function sortDates(dates, descending = false) {
-  const sorted = [...dates].sort(compareDates);
+  const sorted = [...dates].sort((a, b) => compareDates(a, b));
+
   return descending ? sorted.reverse() : sorted;
 }

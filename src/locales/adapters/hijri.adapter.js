@@ -1,144 +1,153 @@
-function gregorianToJd(y, m, d) {
-  const a = Math.floor((14 - m) / 12);
-  const y2 = y + 4800 - a;
-  const m2 = m + 12 * a - 3;
-  return (
-    d +
-    Math.floor((153 * m2 + 2) / 5) +
-    365 * y2 +
-    Math.floor(y2 / 4) -
-    Math.floor(y2 / 100) +
-    Math.floor(y2 / 400) -
-    32045
-  );
-}
-
-function jdToGregorian(jd) {
-  let j = jd;
-  let f = j + 1401 + Math.floor((Math.floor((4 * j + 274277) / 146097) * 3) / 4) - 38;
-  let e = 4 * f + 3;
-  let g = Math.floor((e % 1461) / 4);
-  let h = 5 * g + 2;
-  const D = Math.floor((h % 153) / 5) + 1;
-  const M = ((Math.floor(h / 153) + 2) % 12) + 1;
-  const Y = Math.floor(e / 1461) - 4716 + Math.floor((12 + 2 - M) / 12);
-  return new Date(Y, M - 1, D);
-}
-
-function jdFromDate(date) {
-  return gregorianToJd(date.getFullYear(), date.getMonth() + 1, date.getDate());
-}
-
-function islamicFromJd(jd) {
-  const l = Math.floor(jd) - 1948440 + 10632;
-  const n = Math.floor((l - 1) / 10631);
-  const l2 = l - 10631 * n + 354;
-  const j =
-    Math.floor((10985 - l2) / 5316) * Math.floor((50 * l2) / 17719) +
-    Math.floor(l2 / 5670) * Math.floor((43 * l2) / 15238);
-  const l3 =
-    l2 -
-    Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) -
-    Math.floor(j / 16) * Math.floor((15238 * j) / 43) +
-    29;
-  const m = Math.floor((24 * l3) / 709);
-  const d = l3 - Math.floor((709 * m) / 24);
-  const y = 30 * n + j - 30;
-
-  return { iy: y, im: m, id: d };
-}
-
-function jdToIslamic(jd) {
-  jd = Math.floor(jd) + 0.5;
-  const days = jd - 1948439.5;
-  const year = Math.floor((30 * days + 10646) / 10631);
-  const firstDayOfYear = Math.floor(1948439 + 354 * (year - 1) + Math.floor((3 + 11 * year) / 30));
-  const month = Math.min(12, Math.ceil((jd - firstDayOfYear + 1) / 29.5));
-  const firstDayOfMonth = Math.floor(firstDayOfYear + Math.floor(29.5 * (month - 1)));
-  const day = jd - firstDayOfMonth + 1;
-  return { year, month, day: Math.floor(day) };
-}
-
-function islamicToJd(year, month, day) {
-  return (
-    day +
-    Math.ceil(29.5 * (month - 1)) +
-    (year - 1) * 354 +
-    Math.floor((3 + 11 * year) / 30) +
-    1948439.5 -
-    1
-  );
-}
-
-// function hijriYearStartDays(year) {
-//   return Math.floor((year - 1) * 354 + Math.floor((3 + 11 * year) / 30));
-// }
+import { toHijri, toGregorian } from 'hijri-converter';
 
 export const HijriAdapter = {
+  /**
+   * Get today's date in Hijri calendar
+   * @returns {{jy: number, jm: number, jd: number, year: number, month: number, day: number}} Hijri date object
+   */
   getToday() {
-    const jd = jdFromDate(new Date());
-    const i = islamicFromJd(jd);
+    const now = new Date();
+    const hijri = toHijri(now.getFullYear(), now.getMonth() + 1, now.getDate());
     return {
-      jy: i.iy,
-      jm: i.im,
-      jd: i.id,
-      year: i.iy,
-      month: i.im,
-      day: i.id,
+      jy: hijri.hy,
+      jm: hijri.hm,
+      jd: hijri.hd,
+      year: hijri.hy,
+      month: hijri.hm,
+      day: hijri.hd,
     };
   },
 
+  /**
+   * Get the number of days in a Hijri month
+   * @param {number} year - Hijri year
+   * @param {number} month - Hijri month (1-12)
+   * @returns {number} Number of days in the month
+   */
   getDaysInMonth(year, month) {
+    // Odd months (1, 3, 5, 7, 9, 11) have 30 days
+    // Even months (2, 4, 6, 8, 10) have 29 days
+    // Month 12 has 29 days in normal years and 30 days in leap years
     if (month % 2 === 1) return 30;
     if (month !== 12) return 29;
-    const isLeap = (11 * year + 14) % 30 < 11;
-    return isLeap ? 30 : 29;
+    return this.isLeapYear(year) ? 30 : 29;
   },
 
+  /**
+   * Convert Hijri date to JavaScript Date object
+   * @param {number} year - Hijri year
+   * @param {number} month - Hijri month (1-12)
+   * @param {number} day - Hijri day
+   * @returns {Date} JavaScript Date object
+   */
   toDateObject(year, month, day) {
-    const jd = islamicToJd(year, month, day);
-
-    let g = jdToGregorian(Math.floor(jd));
-    return g;
+    const gregorian = toGregorian(year, month, day);
+    return new Date(gregorian.gy, gregorian.gm - 1, gregorian.gd);
   },
 
+  /**
+   * Add months to a date
+   * @param {Date} date - JavaScript Date object
+   * @param {number} months - Number of months to add (can be negative)
+   * @returns {Date} New Date object with months added
+   */
   addMonths(date, months) {
-    const jd = jdFromDate(date);
-    const i = jdToIslamic(jd);
-    let m = i.month + months;
-    let y = i.year + Math.floor((m - 1) / 12);
-    m = ((((m - 1) % 12) + 12) % 12) + 1;
-    const d = Math.min(i.day, this.getDaysInMonth(y, m));
-    return this.toDateObject(y, m, d);
+    const gregorian = { gy: date.getFullYear(), gm: date.getMonth() + 1, gd: date.getDate() };
+    const hijri = toHijri(gregorian.gy, gregorian.gm, gregorian.gd);
+
+    let newMonth = hijri.hm + months;
+    let newYear = hijri.hy;
+
+    while (newMonth > 12) {
+      newMonth -= 12;
+      newYear++;
+    }
+
+    while (newMonth < 1) {
+      newMonth += 12;
+      newYear--;
+    }
+
+    // Adjust day if it exceeds the days in the new month
+    const maxDay = this.getDaysInMonth(newYear, newMonth);
+    const newDay = Math.min(hijri.hd, maxDay);
+
+    return this.toDateObject(newYear, newMonth, newDay);
   },
 
+  /**
+   * Add years to a date
+   * @param {Date} date - JavaScript Date object
+   * @param {number} years - Number of years to add (can be negative)
+   * @returns {Date} New Date object with years added
+   */
   addYears(date, years) {
-    const jd = jdFromDate(date);
-    const i = jdToIslamic(jd);
-    const y = i.year + years;
-    const m = i.month;
-    const d = Math.min(i.day, this.getDaysInMonth(y, m));
-    return this.toDateObject(y, m, d);
+    const gregorian = { gy: date.getFullYear(), gm: date.getMonth() + 1, gd: date.getDate() };
+    const hijri = toHijri(gregorian.gy, gregorian.gm, gregorian.gd);
+
+    const newYear = hijri.hy + years;
+
+    // Adjust day if it exceeds the days in the month
+    const maxDay = this.getDaysInMonth(newYear, hijri.hm);
+    const newDay = Math.min(hijri.hd, maxDay);
+
+    return this.toDateObject(newYear, hijri.hm, newDay);
   },
 
+  /**
+   * Parse a Hijri date string to Date object
+   * @param {string} str - Date string in format YYYY-MM-DD or YYYY/MM/DD
+   * @returns {Date|null} JavaScript Date object or null if invalid
+   */
   parse(str) {
-    const [y, m, d] = String(str).split('-').map(Number);
+    if (!str || typeof str !== 'string') return null;
+
+    const match = str.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+    if (!match) return null;
+
+    const [, y, m, d] = match.map(Number);
     return this.toDateObject(y, m, d);
   },
 
+  /**
+   * Format a Date object as Hijri date string
+   * @param {Date} date - JavaScript Date object
+   * @returns {string} Formatted Hijri date string (YYYY-MM-DD)
+   */
   format(date) {
-    const jd = jdFromDate(date);
-    const i = islamicFromJd(jd);
-    return `${i.iy}-${String(i.im).padStart(2, '0')}-${String(i.id).padStart(2, '0')}`;
+    const gregorian = { gy: date.getFullYear(), gm: date.getMonth() + 1, gd: date.getDate() };
+    const hijri = toHijri(gregorian.gy, gregorian.gm, gregorian.gd);
+
+    const y = hijri.hy;
+    const m = String(hijri.hm).padStart(2, '0');
+    const d = String(hijri.hd).padStart(2, '0');
+
+    return `${y}-${m}-${d}`;
   },
 
+  /**
+   * Get weekday for a Hijri date (0 = Saturday, 6 = Friday)
+   * @param {number} year - Hijri year
+   * @param {number} month - Hijri month (1-12)
+   * @param {number} day - Hijri day
+   * @returns {number} Weekday (0-6, where 0 is Saturday)
+   */
   getWeekday(year, month, day) {
-    const jd = islamicToJd(year, month, day);
-    const gregorianDate = jdToGregorian(jd);
-    return (gregorianDate.getDay() + 1) % 7;
+    const date = this.toDateObject(year, month, day);
+    const jsDay = date.getDay();
+    // JavaScript: 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    // Persian: 0 = Saturday, 1 = Sunday, ..., 6 = Friday
+    return (jsDay + 1) % 7;
   },
 
+  /**
+   * Check if a Hijri year is a leap year
+   * @param {number} year - Hijri year
+   * @returns {boolean} True if leap year, false otherwise
+   */
   isLeapYear(year) {
+    // In Hijri calendar, leap years have 355 days (instead of 354)
+    // The 12th month (Dhu al-Hijjah) has 30 days in a leap year instead of 29
     return (11 * year + 14) % 30 < 11;
   },
 };

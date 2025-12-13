@@ -1,101 +1,184 @@
-const PERSIAN_DIGITS = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+import { toPersianNumbers } from '@/locales';
+import { set, isValid } from 'date-fns';
+import { getDaysInMonth as getJalaaliDays } from 'date-fns-jalali';
+import { toGregorian } from 'hijri-converter';
+import { lunarToSolar } from 'lunar-javascript';
 
-export function toPersianNumbers(value) {
-  if (value === null || value === undefined) return '';
-
-  return String(value).replace(/\d/g, (digit) => PERSIAN_DIGITS[parseInt(digit)]);
+function isJalaaliDate(date) {
+  return date && typeof date === 'object' && 'jy' in date && 'jm' in date && 'jd' in date;
 }
 
-export function toEnglishNumbers(value) {
-  if (!value) return '';
-
-  return String(value).replace(/[۰-۹]/g, (digit) => {
-    return PERSIAN_DIGITS.indexOf(digit).toString();
-  });
+function isGregorianDate(date) {
+  return date && typeof date === 'object' && 'year' in date && 'month' in date && 'day' in date;
 }
 
-export function padZero(num, length = 2) {
-  return String(num).padStart(length, '0');
+function isHijriDate(date) {
+  return date && typeof date === 'object' && 'hy' in date && 'hm' in date && 'hd' in date;
 }
 
-export function formatJalaaliDate(date, format, options = {}) {
-  if (!date) return '';
+function isChineseDate(date) {
+  return date && typeof date === 'object' && 'cyear' in date && 'cmonth' in date && 'cday' in date;
+}
 
-  const { persianNumbers = true, locale } = options;
-  const { jy, jm, jd, hour, minute } = date;
+export function isValidDateObject(date) {
+  if (!date || typeof date !== 'object') return false;
 
-  let result = format;
-
-  result = result.replace('YYYY', String(jy));
-  result = result.replace('YY', String(jy).slice(-2));
-  result = result.replace('MM', padZero(jm));
-  result = result.replace('M', String(jm));
-  result = result.replace('DD', padZero(jd));
-  result = result.replace('D', String(jd));
-
-  if (locale?.months && result.includes('MMMM')) {
-    result = result.replace('MMMM', locale.months[jm - 1]);
+  if (isGregorianDate(date)) {
+    const jsDate = set(new Date(), {
+      year: date.year,
+      month: date.month - 1,
+      date: date.day,
+    });
+    return isValid(jsDate);
   }
 
-  if (locale?.weekdays && result.includes('dddd')) {
-    result = result.replace('dddd', '');
+  if (isJalaaliDate(date)) {
+    if (date.jm < 1 || date.jm > 12) return false;
+    const maxDay = getJalaaliDays(new Date(date.jy, date.jm - 1, 1));
+    return date.jd >= 1 && date.jd <= maxDay;
   }
 
-  if (persianNumbers) {
-    result = toPersianNumbers(result);
+  if (isHijriDate(date)) {
+    try {
+      const g = toGregorian(date.hy, date.hm, date.hd);
+      return Boolean(g?.gy);
+    } catch {
+      return false;
+    }
   }
 
+  if (isChineseDate(date)) {
+    try {
+      const solar = lunarToSolar(date.cyear, date.cmonth, date.cday, false);
+      return Boolean(solar?.year);
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
+}
+
+function toSafeInteger(value, fallback = 0) {
+  if (Number.isInteger(value)) return value;
+  if (typeof value === 'string') {
+    const parsed = parseInt(value, 10);
+    return Number.isInteger(parsed) ? parsed : fallback;
+  }
+  return fallback;
+}
+
+function sanitizeTime(date) {
+  const result = {};
+  if ('hour' in date) result.hour = toSafeInteger(date.hour, 0);
+  if ('minute' in date) result.minute = toSafeInteger(date.minute, 0);
   return result;
 }
 
-export function formatTime(hour, minute, options = {}) {
-  const { timeFormat = 24, persianNumbers = true } = options;
+export function sanitizeDateObject(date) {
+  if (!date || typeof date !== 'object') return null;
 
-  let displayHour = hour;
-  let suffix = '';
+  const DEFAULTS = {
+    jalaali: { jy: 1403, jm: 1, jd: 1 },
+    gregorian: { year: 2024, month: 1, day: 1 },
+    hijri: { hy: 1446, hm: 1, hd: 1 },
+    chinese: { cyear: 2024, cmonth: 1, cday: 1 },
+  };
 
-  if (timeFormat === 12) {
-    suffix = hour >= 12 ? ' PM' : ' AM';
-    displayHour = hour % 12 || 12;
+  if (isJalaaliDate(date)) return { ...DEFAULTS.jalaali, ...date, ...sanitizeTime(date) };
+  if (isGregorianDate(date)) return { ...DEFAULTS.gregorian, ...date, ...sanitizeTime(date) };
+  if (isHijriDate(date)) return { ...DEFAULTS.hijri, ...date, ...sanitizeTime(date) };
+  if (isChineseDate(date)) return { ...DEFAULTS.chinese, ...date, ...sanitizeTime(date) };
+
+  return null;
+}
+
+function padZero(value, length = 2) {
+  return String(value).padStart(length, '0');
+}
+
+export function formatSingleDate(
+  date,
+  format = 'YYYY/MM/DD',
+  includeTime = false,
+  numberSystem = 'latn',
+  persianMonthNames = null,
+) {
+  const validDate = isValidDateObject(date) ? date : sanitizeDateObject(date);
+  if (!validDate) return '';
+
+  let y, m, d;
+  const { jy, jm, jd, hy, hm, hd, cyear, cmonth, cday, year, month, day, hour, minute } = validDate;
+
+  if (jy != null) {
+    y = jy;
+    m = jm;
+    d = jd;
+  } else if (hy != null) {
+    const g = toGregorian(hy, hm, hd);
+    y = g.gy;
+    m = g.gm;
+    d = g.gd;
+  } else if (cyear != null) {
+    const solar = lunarToSolar(cyear, cmonth, cday, false);
+    y = solar.year;
+    m = solar.month;
+    d = solar.day;
+  } else {
+    y = year;
+    m = month;
+    d = day;
   }
 
-  const formatted = `${padZero(displayHour)}:${padZero(minute)}${suffix}`;
+  let monthStr = padZero(m);
+  if (persianMonthNames && jy != null) monthStr = persianMonthNames[m - 1] ?? monthStr;
 
-  return persianNumbers ? toPersianNumbers(formatted) : formatted;
-}
+  let str = format.replace('YYYY', y).replace('MM', monthStr).replace('DD', padZero(d));
+  str = numberSystem === 'fa' ? toPersianNumbers(str) : str;
 
-export function formatJalaaliDateTime(dateTime, dateFormat, options = {}) {
-  if (!dateTime) return '';
-
-  let result = formatJalaaliDate(dateTime, dateFormat, options);
-
-  if (dateTime.hour !== undefined && dateTime.minute !== undefined) {
-    const timeStr = formatTime(dateTime.hour, dateTime.minute, options);
-    result += ` ${timeStr}`;
+  if (includeTime && typeof hour === 'number' && typeof minute === 'number') {
+    const timeStr = `${padZero(hour)}:${padZero(minute)}`;
+    str += numberSystem === 'fa' ? ` ${toPersianNumbers(timeStr)}` : ` ${timeStr}`;
   }
 
-  return result;
+  return str;
 }
 
-export function formatDateRange(range, dateFormat, options = {}) {
-  if (!range) return '';
+export function formatDateRange(
+  range,
+  format,
+  includeTime = false,
+  numberSystem = 'latn',
+  persianMonthNames = null,
+) {
+  if (!range?.start) return '';
+  const startDate = isValidDateObject(range.start) ? range.start : sanitizeDateObject(range.start);
+  if (!startDate) return '';
 
-  const { separator = ' - ', ...formatOptions } = options;
-  const { start, end } = range;
+  if (!range.end)
+    return formatSingleDate(startDate, format, includeTime, numberSystem, persianMonthNames);
 
-  const startStr = start ? formatJalaaliDateTime(start, dateFormat, formatOptions) : '';
-  const endStr = end ? formatJalaaliDateTime(end, dateFormat, formatOptions) : '';
+  const endDate = isValidDateObject(range.end) ? range.end : sanitizeDateObject(range.end);
+  if (!endDate)
+    return formatSingleDate(startDate, format, includeTime, numberSystem, persianMonthNames);
 
-  if (!startStr) return '';
-  if (!endStr) return startStr;
-
-  return `${startStr}${separator}${endStr}`;
+  return `${formatSingleDate(startDate, format, includeTime, numberSystem, persianMonthNames)} - ${formatSingleDate(endDate, format, includeTime, numberSystem, persianMonthNames)}`;
 }
 
-export function formatMultipleDates(dates, dateFormat, options = {}) {
-  if (!dates || !dates.length) return '';
+export function formatMultipleDates(
+  dates = [],
+  format,
+  includeTime = false,
+  numberSystem = 'latn',
+  persianMonthNames = null,
+) {
+  if (!Array.isArray(dates) || !dates.length) return '';
 
-  const { separator = '، ', ...formatOptions } = options;
+  const sanitizedDates = dates
+    .map((d) => (isValidDateObject(d) ? d : sanitizeDateObject(d)))
+    .filter(Boolean);
 
-  return dates.map((d) => formatJalaaliDateTime(d, dateFormat, formatOptions)).join(separator);
+  return sanitizedDates
+    .map((d) => formatSingleDate(d, format, includeTime, numberSystem, persianMonthNames))
+    .join('، ');
 }

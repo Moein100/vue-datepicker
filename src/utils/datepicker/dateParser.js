@@ -1,5 +1,11 @@
-import { jalaaliMonthLength } from './jalaali.js';
+import {
+  getDaysInMonth as getJalaaliDaysInMonth,
+  setYear as setJalaaliYear,
+  setMonth as setJalaaliMonth,
+  setDate as setJalaaliDate,
+} from 'date-fns-jalali';
 
+import { getDaysInMonth as getGregorianDaysInMonth } from 'date-fns';
 export class DateParseError extends Error {
   constructor(message, input) {
     super(message);
@@ -8,143 +14,144 @@ export class DateParseError extends Error {
   }
 }
 
-export function isValidJalaaliDate(year, month, day) {
-  if (!Number.isInteger(year) || year < 1 || year > 3000) return false;
-  if (!Number.isInteger(month) || month < 1 || month > 12) return false;
-  if (!Number.isInteger(day) || day < 1) return false;
+function isValidInteger(value, min, max) {
+  return Number.isInteger(value) && value >= min && value <= max;
+}
 
-  const maxDay = jalaaliMonthLength(year, month);
-  return day <= maxDay;
+export function isValidJalaaliDate(year, month, day) {
+  if (
+    !isValidInteger(year, 1, 3000) ||
+    !isValidInteger(month, 1, 12) ||
+    !isValidInteger(day, 1, 31)
+  ) {
+    return false;
+  }
+
+  try {
+    let date = new Date();
+    date = setJalaaliYear(date, year);
+    date = setJalaaliMonth(date, month - 1);
+    date = setJalaaliDate(date, 1);
+
+    return day <= getJalaaliDaysInMonth(date);
+  } catch {
+    return false;
+  }
 }
 
 export function isValidGregorianDate(year, month, day) {
-  if (!Number.isInteger(year) || year < 1 || year > 9999) return false;
-  if (!Number.isInteger(month) || month < 1 || month > 12) return false;
-  if (!Number.isInteger(day) || day < 1) return false;
+  if (
+    !isValidInteger(year, 1, 9999) ||
+    !isValidInteger(month, 1, 12) ||
+    !isValidInteger(day, 1, 31)
+  ) {
+    return false;
+  }
 
-  const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  try {
+    const date = new Date(year, month - 1, 1);
+    const maxDay = getGregorianDaysInMonth(date);
 
-  const maxDay = month === 2 && isLeapYear ? 29 : daysInMonth[month - 1];
-  return day <= maxDay;
+    return day <= maxDay;
+  } catch {
+    return false;
+  }
 }
 
 export function isValidHijriDate(year, month, day) {
-  if (!Number.isInteger(year) || year < 1 || year > 9999) return false;
-  if (!Number.isInteger(month) || month < 1 || month > 12) return false;
-  if (!Number.isInteger(day) || day < 1 || day > 30) return false;
-  return true;
+  return (
+    isValidInteger(year, 1, 9999) && isValidInteger(month, 1, 12) && isValidInteger(day, 1, 30)
+  );
 }
 
-export function isValidDate(dateObj) {
-  if (!dateObj || typeof dateObj !== 'object') return false;
+export function isValidDate(date) {
+  if (!date || typeof date !== 'object') return false;
 
-  if (dateObj.jy !== undefined && dateObj.jm !== undefined && dateObj.jd !== undefined) {
-    return isValidJalaaliDate(dateObj.jy, dateObj.jm, dateObj.jd);
+  if ('jy' in date) {
+    return isValidJalaaliDate(date.jy, date.jm, date.jd);
   }
 
-  if (dateObj.year !== undefined && dateObj.month !== undefined && dateObj.day !== undefined) {
-    return isValidGregorianDate(dateObj.year, dateObj.month, dateObj.day);
+  if ('year' in date) {
+    return isValidGregorianDate(date.year, date.month, date.day);
   }
 
   return false;
 }
 
-function parseStringDate(dateStr) {
-  if (!dateStr || typeof dateStr !== 'string') return null;
+function parseStringDate(input) {
+  if (typeof input !== 'string') return null;
 
-  const separators = /[\/\-\.]/;
-  const parts = dateStr.trim().split(separators).map(Number);
+  const parts = input
+    .trim()
+    .split(/[\/\-\.]/)
+    .map(Number);
 
-  if (parts.length !== 3 || parts.some(isNaN)) {
+  if (parts.length !== 3 || parts.some(Number.isNaN)) {
     return null;
   }
 
   const [jy, jm, jd] = parts;
 
-  if (!isValidJalaaliDate(jy, jm, jd)) {
-    return null;
-  }
-
-  return { jy, jm, jd };
+  return isValidJalaaliDate(jy, jm, jd) ? { jy, jm, jd } : null;
 }
 
-function parseObjectDate(dateObj) {
-  if (!dateObj || typeof dateObj !== 'object') return null;
+function parseObjectDate(input) {
+  if (!input || typeof input !== 'object') return null;
 
-  const { jy, jm, jd, year, month, day } = dateObj;
-
-  if (jy !== undefined && jm !== undefined && jd !== undefined) {
-    if (!isValidJalaaliDate(jy, jm, jd)) {
-      return null;
-    }
-    return { jy, jm, jd };
+  if ('jy' in input) {
+    return isValidJalaaliDate(input.jy, input.jm, input.jd)
+      ? { jy: input.jy, jm: input.jm, jd: input.jd }
+      : null;
   }
 
-  if (year !== undefined && month !== undefined && day !== undefined) {
-    if (!isValidGregorianDate(year, month, day)) {
-      return null;
-    }
-    return { year, month, day };
+  if ('year' in input) {
+    return isValidGregorianDate(input.year, input.month, input.day)
+      ? { year: input.year, month: input.month, day: input.day }
+      : null;
   }
 
   return null;
 }
 
-export function parseDate(date, options = {}) {
-  const { strict = false } = options;
+export function parseDate(input, { strict = false } = {}) {
+  if (input == null) return null;
 
-  if (date === null || date === undefined) {
-    return null;
+  let parsed = null;
+
+  if (typeof input === 'string') {
+    parsed = parseStringDate(input);
+    if (!parsed && strict) {
+      throw new DateParseError('Invalid date string', input);
+    }
   }
 
-  let result = null;
-
-  if (typeof date === 'string') {
-    result = parseStringDate(date);
-    if (!result && strict) {
-      throw new DateParseError(
-        `Invalid date string: "${date}". Expected format: YYYY/MM/DD or YYYY-MM-DD`,
-        date,
-      );
+  if (typeof input === 'object') {
+    parsed = parseObjectDate(input);
+    if (!parsed && strict) {
+      throw new DateParseError('Invalid date object', input);
     }
-  } else if (typeof date === 'object') {
-    result = parseObjectDate(date);
-    if (!result && strict) {
-      throw new DateParseError(
-        'Invalid date object. Expected { jy, jm, jd } or { year, month, day } with valid values',
-        date,
-      );
-    }
-  } else if (strict) {
-    throw new DateParseError(`Unsupported date type: ${typeof date}`, date);
   }
 
-  return result;
+  if (!parsed && strict) {
+    throw new DateParseError(`Unsupported date type: ${typeof input}`, input);
+  }
+
+  return parsed;
 }
 
-export function parseJalaaliDate(date, options = {}) {
-  return parseDate(date, options);
+export function parseJalaaliDate(input, options = {}) {
+  return parseDate(input, options);
 }
 
-export function parseJalaaliDateTime(dateTime, options = {}) {
-  if (!dateTime) return null;
+export function parseJalaaliDateTime(input, options = {}) {
+  const date = parseDate(input, options);
+  if (!date || typeof input !== 'object') return date;
 
-  const date = parseJalaaliDate(dateTime, options);
-  if (!date) return null;
-
-  if (typeof dateTime === 'object') {
-    const hour = typeof dateTime.hour === 'number' ? dateTime.hour : undefined;
-    const minute = typeof dateTime.minute === 'number' ? dateTime.minute : undefined;
-
-    return {
-      ...date,
-      ...(hour !== undefined && { hour }),
-      ...(minute !== undefined && { minute }),
-    };
-  }
-
-  return date;
+  return {
+    ...date,
+    ...(typeof input.hour === 'number' && { hour: input.hour }),
+    ...(typeof input.minute === 'number' && { minute: input.minute }),
+  };
 }
 
 export function parseDateRange(range, options = {}) {
@@ -153,13 +160,11 @@ export function parseDateRange(range, options = {}) {
   const start = parseJalaaliDateTime(range.start, options);
   const end = parseJalaaliDateTime(range.end, options);
 
-  if (!start && !end) return null;
-
-  return { start, end };
+  return start || end ? { start, end } : null;
 }
 
 export function parseMultipleDates(dates, options = {}) {
   if (!Array.isArray(dates)) return [];
 
-  return dates.map((d) => parseJalaaliDateTime(d, options)).filter(Boolean);
+  return dates.map((date) => parseJalaaliDateTime(date, options)).filter(Boolean);
 }

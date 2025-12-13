@@ -1,54 +1,83 @@
 import {
-  getJalaaliWeekday,
-  isLeapJalaaliYear,
-  jalaaliMonthLength,
-  jalaaliToDate,
-  jalaaliToday,
-  timestampToJalaali,
-} from '@/utils/datepicker';
+  format as formatJalali,
+  getDate,
+  getMonth,
+  getYear,
+  getDaysInMonth,
+  getDay,
+  addMonths as addMonthsJalali,
+  addYears as addYearsJalali,
+  isLeapYear as isLeapYearJalali,
+  setYear,
+  setMonth,
+  setDate,
+} from 'date-fns-jalali';
 
 export const JalaaliAdapter = {
-  getToday: jalaaliToday,
+  /**
+   * Get today's date in Jalali calendar
+   * @returns {{jy: number, jm: number, jd: number}} Jalali date object
+   */
+  getToday() {
+    const now = new Date();
+    return {
+      jy: getYear(now),
+      jm: getMonth(now) + 1, // date-fns months are 0-indexed
+      jd: getDate(now),
+    };
+  },
 
-  getDaysInMonth: jalaaliMonthLength,
+  /**
+   * Get the number of days in a Jalali month
+   * @param {number} year - Jalali year
+   * @param {number} month - Jalali month (1-12)
+   * @returns {number} Number of days in the month
+   */
+  getDaysInMonth(year, month) {
+    const date = this.toDateObject(year, month, 1);
+    return getDaysInMonth(date);
+  },
 
-  toDateObject: jalaaliToDate,
+  /**
+   * Convert Jalali date to JavaScript Date object
+   * @param {number} year - Jalali year
+   * @param {number} month - Jalali month (1-12)
+   * @param {number} day - Jalali day
+   * @returns {Date} JavaScript Date object
+   */
+  toDateObject(year, month, day) {
+    let date = new Date();
+    date = setYear(date, year);
+    date = setMonth(date, month - 1);
+    date = setDate(date, day);
+    return date;
+  },
 
+  /**
+   * Add months to a date
+   * @param {Date} date - JavaScript Date object
+   * @param {number} months - Number of months to add (can be negative)
+   * @returns {Date} New Date object with months added
+   */
   addMonths(date, months) {
-    const j = timestampToJalaali(date.getTime());
-
-    let newMonth = j.jm + months;
-    let newYear = j.jy + Math.floor((newMonth - 1) / 12);
-    newMonth = ((((newMonth - 1) % 12) + 12) % 12) + 1;
-
-    const maxDay = jalaaliMonthLength(newYear, newMonth);
-    const day = Math.min(j.jd, maxDay);
-
-    return jalaaliToDate({
-      jy: newYear,
-      jm: newMonth,
-      jd: day,
-      hour: j.hour,
-      minute: j.minute,
-    });
+    return addMonthsJalali(date, months);
   },
 
+  /**
+   * Add years to a date
+   * @param {Date} date - JavaScript Date object
+   * @param {number} years - Number of years to add (can be negative)
+   * @returns {Date} New Date object with years added
+   */
   addYears(date, years) {
-    const j = timestampToJalaali(date.getTime());
-    const newYear = j.jy + years;
-
-    const maxDay = jalaaliMonthLength(newYear, j.jm);
-    const day = Math.min(j.jd, maxDay);
-
-    return jalaaliToDate({
-      jy: newYear,
-      jm: j.jm,
-      jd: day,
-      hour: j.hour,
-      minute: j.minute,
-    });
+    return addYearsJalali(date, years);
   },
 
+  /**
+   * Parse a Jalali date string to Date object
+   * @param {string} str - Date string in format YYYY-MM-DD or YYYY/MM/DD
+   * @returns {Date|null} JavaScript Date object or null if invalid
+   */
   parse(str) {
     if (!str) return null;
 
@@ -59,19 +88,40 @@ export const JalaaliAdapter = {
     const m = Number(match[2]);
     const d = Number(match[3]);
 
-    return jalaaliToDate({ jy: y, jm: m, jd: d });
+    return this.toDateObject(y, m, d);
   },
 
+  /**
+   * Format a Date object as Jalali date string
+   * @param {Date} date - JavaScript Date object
+   * @returns {string} Formatted Jalali date string (YYYY-MM-DD)
+   */
   format(date) {
-    const j = timestampToJalaali(date.getTime());
-    return `${j.jy}-${String(j.jm).padStart(2, '0')}-${String(j.jd).padStart(2, '0')}`;
+    return formatJalali(date, 'yyyy-MM-dd');
   },
 
+  /**
+   * Get weekday for a Jalali date (0 = Saturday, 6 = Friday)
+   * @param {number} jy - Jalali year
+   * @param {number} jm - Jalali month (1-12)
+   * @param {number} jd - Jalali day
+   * @returns {number} Weekday (0-6, where 0 is Saturday)
+   */
   getWeekday(jy, jm, jd) {
-    return getJalaaliWeekday(jy, jm, jd);
+    const date = this.toDateObject(jy, jm, jd);
+    const jsDay = getDay(date);
+    // JavaScript: 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    // Persian: 0 = Saturday, 1 = Sunday, ..., 6 = Friday
+    return (jsDay + 1) % 7;
   },
 
+  /**
+   * Check if a Jalali year is a leap year
+   * @param {number} jy - Jalali year
+   * @returns {boolean} True if leap year, false otherwise
+   */
   isLeapYear(jy) {
-    return isLeapJalaaliYear(jy);
+    const date = this.toDateObject(jy, 1, 1);
+    return isLeapYearJalali(date);
   },
 };

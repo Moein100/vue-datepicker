@@ -1,4 +1,4 @@
-const NUMBER_DIGITS = Object.freeze({
+export const NUMBER_DIGITS = Object.freeze({
   persian: ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'],
   arabic: ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'],
   latin: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
@@ -7,22 +7,16 @@ const NUMBER_DIGITS = Object.freeze({
 
 export function toLocalizedNumbers(value, system = 'persian') {
   if (value === null || value === undefined) return '';
-
   const digits = NUMBER_DIGITS[system] || NUMBER_DIGITS.persian;
-
-  return String(value).replace(/\d/g, (digit) => {
-    return digits[parseInt(digit, 10)];
-  });
+  return String(value).replace(/\d/g, (d) => digits[parseInt(d, 10)]);
 }
 
 export function toLatinNumbers(value) {
   if (!value) return '';
-
   let result = String(value);
 
   Object.entries(NUMBER_DIGITS).forEach(([system, digits]) => {
     if (system === 'latin') return;
-
     digits.forEach((digit, index) => {
       result = result.replace(new RegExp(digit, 'g'), String(index));
     });

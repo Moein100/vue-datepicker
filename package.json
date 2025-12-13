@@ -74,6 +74,10 @@
     "vite-plugin-vue-devtools": "^8.0.0"
   },
   "dependencies": {
+    "date-fns": "^4.1.0",
+    "date-fns-jalali": "^4.1.0-0",
+    "hijri-converter": "^1.1.1",
+    "lunar-javascript": "^1.7.7",
     "rollup-plugin-visualizer": "^6.0.5"
   }
 }

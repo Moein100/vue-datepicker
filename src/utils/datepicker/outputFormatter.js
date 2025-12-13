@@ -1,4 +1,4 @@
-import { toGregorian } from './jalaali';
+import { setYear, setMonth, setDate } from 'date-fns-jalali';
 
 /**
  * @typedef {Object} GregorianDate
@@ -45,7 +45,7 @@ const isJalaali = (d) =>
   d && typeof d.jy === 'number' && typeof d.jm === 'number' && typeof d.jd === 'number';
 
 /**
- * Converts Jalaali or Gregorian date into a normalized Gregorian object.
+ * Converts Jalaali or Gregorian date into a normalized Gregorian object using date-fns-jalali.
  * @param {AnyDate} date
  * @returns {{year: number, month: number, day: number} | null}
  */
@@ -55,8 +55,17 @@ const normalizeToGregorian = (date) => {
   }
 
   if (isJalaali(date)) {
-    const g = toGregorian(date.jy, date.jm, date.jd);
-    return { year: g.gy, month: g.gm, day: g.gd };
+    // Use date-fns-jalali to convert Jalali to Gregorian
+    let jsDate = new Date();
+    jsDate = setYear(jsDate, date.jy);
+    jsDate = setMonth(jsDate, date.jm - 1);
+    jsDate = setDate(jsDate, date.jd);
+
+    return {
+      year: jsDate.getFullYear(),
+      month: jsDate.getMonth() + 1,
+      day: jsDate.getDate(),
+    };
   }
 
   return null;

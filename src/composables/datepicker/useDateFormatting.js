@@ -1,11 +1,7 @@
 import { computed } from 'vue';
 import { useI18nStore } from '@/store/i18n';
 import { useFont } from '@/composables/useFont';
-import {
-  formatSingleDate,
-  formatRangeDate,
-  formatMultipleDates,
-} from '@/utils/datepicker/dateDisplay';
+import { formatDateRange, formatMultipleDates, formatSingleDate } from '@/utils/datepicker';
 
 /**
  * Composable for formatting dates based on mode and locale.
@@ -39,7 +35,7 @@ export const useDateFormatting = (value, options = {}) => {
     try {
       switch (mode) {
         case 'range':
-          return formatRangeDate(dateValue, format, enableTime, numberSystem.value);
+          return formatDateRange(dateValue, format, enableTime, numberSystem.value);
 
         case 'multiple':
           return formatMultipleDates(dateValue, format, enableTime, numberSystem.value);
