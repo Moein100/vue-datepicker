@@ -30,7 +30,7 @@ export const usePickerState = (props, emit) => {
     set: (val) => {
       internalState.value = val;
       const transformed = transformOutput(val, props.outputFormat, props.outputStringFormat);
-      emit('update:modelValue', transformed);
+      emit('update:modelVal ue', transformed);
     },
   });
 

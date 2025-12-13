@@ -1,8 +1,8 @@
 import { ref, computed, watch } from 'vue';
-import { parseJalaaliDate } from '../../utils/datepicker/dateParser.js';
-import { VIEW_MODES } from '../../constants/datepicker.js';
 import { useI18nStore } from '@/store/i18n.js';
 import { getCalendarAdapter } from '@/locales/adapters/createCalendarAdapterManager.js';
+import { parseJalaaliDate } from '@/utils/datepicker';
+import { VIEW_MODES } from '@/constants/datepicker';
 
 /**
  * Composable for managing calendar navigation state (year, month, view).

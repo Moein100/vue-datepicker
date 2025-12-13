@@ -1,22 +1,23 @@
-import { compareDates, isBetween, parseJalaaliDate } from '@/utils/datepicker';
 import { computed } from 'vue';
+import { compareDates, isBetween, parseJalaaliDate } from '@/utils/datepicker';
 
-export function useDateConstraints(options = {}) {
-  const { minDate = null, maxDate = null } = options;
-
+export function useDateConstraints({ minDate = null, maxDate = null } = {}) {
   const min = parseJalaaliDate(minDate);
   const max = parseJalaaliDate(maxDate);
 
   const hasConstraints = computed(() => min !== null || max !== null);
 
+  function isBeforeMin(date) {
+    return min && compareDates(date, min) < 0;
+  }
+
+  function isAfterMax(date) {
+    return max && compareDates(date, max) > 0;
+  }
+
   function isDisabled(date) {
     if (!date) return true;
-
-    if (min && compareDates(date, min) < 0) return true;
-
-    if (max && compareDates(date, max) < 0) return true;
-
-    return false;
+    return isBeforeMin(date) || isAfterMax(date);
   }
 
   function isEnabled(date) {
@@ -25,41 +26,28 @@ export function useDateConstraints(options = {}) {
 
   function isInAllowedRange(date) {
     if (!hasConstraints.value) return true;
-
     if (min && max) return isBetween(date, min, max);
-    if (min) return compareDates(date, min) >= 0;
-    if (max) return compareDates(date, max) <= 0;
-
+    if (min) return !isBeforeMin(date);
+    if (max) return !isAfterMax(date);
     return true;
   }
 
   function isMonthDisabled(year, month) {
     const firstDay = { jy: year, jm: month, jd: 1 };
     const lastDay = { jy: year, jm: month, jd: 31 };
-
-    if (min && compareDates(lastDay, min) < 0) return true;
-    if (max && compareDates(firstDay, max) > 0) return true;
-
-    return false;
+    return isBeforeMin(lastDay) || isAfterMax(firstDay);
   }
 
   function isYearDisabled(year) {
     const firstDay = { jy: year, jm: 1, jd: 1 };
     const lastDay = { jy: year, jm: 12, jd: 29 };
-
-    if (min && compareDates(lastDay, min) < 0) return true;
-    if (max && compareDates(firstDay, max) > 0) return true;
-
-    return false;
+    return isBeforeMin(lastDay) || isAfterMax(firstDay);
   }
 
   function clampDate(date) {
     if (!date) return date;
-
-    if (min && compareDates(date, min) < 0) return { ...min };
-
-    if (max && compareDates(date, max) > 0) return { ...max };
-
+    if (isBeforeMin(date)) return { ...min };
+    if (isAfterMax(date)) return { ...max };
     return date;
   }
 
@@ -67,7 +55,6 @@ export function useDateConstraints(options = {}) {
     min,
     max,
     hasConstraints,
-
     isDisabled,
     isEnabled,
     isInAllowedRange,

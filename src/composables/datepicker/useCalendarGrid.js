@@ -1,28 +1,20 @@
-import { computed } from 'vue';
-import { isSameDate } from '../../utils/datepicker/dateComparison.js';
-import { CALENDAR_CONFIG } from '../../constants/datepicker.js';
+import { computed, watch } from 'vue';
 import { getCalendarAdapter } from '@/locales/adapters/createCalendarAdapterManager.js';
 import { useI18nStore } from '@/store/i18n.js';
+import { isSameDate } from '@/utils/datepicker';
+import { CALENDAR_CONFIG } from '@/constants/datepicker';
 
 export function useCalendarGrid(options) {
   const { year, month, selection, constraints, locale } = options;
 
   const i18n = useI18nStore();
 
-  if (locale) {
-    computed(() => locale.value).value;
-    computed(() => i18n.setLocale(locale.value));
-  }
+  syncLocale(locale, i18n);
 
   const adapter = computed(() => getCalendarAdapter(i18n.calendarType));
-
   const today = computed(() => adapter.value.getToday());
 
-  const resolveMonthYear = (offset) => {
-    if (offset === 0) {
-      return { y: year.value, m: month.value };
-    }
-
+  function resolveMonthYear(offset = 0) {
     let y = year.value;
     let m = month.value + offset;
 
@@ -37,64 +29,72 @@ export function useCalendarGrid(options) {
     }
 
     return { y, m };
-  };
+  }
 
-  const createDayMeta = (day, offset = 0) => {
-    const { y, m } = resolveMonthYear(offset);
-
-    const dateObj = {
+  function buildDateObject(y, m, d) {
+    return {
       jy: y,
       jm: m,
-      jd: day,
+      jd: d,
       year: y,
       month: m,
-      day,
+      day: d,
     };
+  }
 
-    const isInCurrentMonth = offset === 0;
+  function createDayMeta(day, offset = 0) {
+    const { y, m } = resolveMonthYear(offset);
+    const date = buildDateObject(y, m, day);
+
+    const isCurrentMonth = offset === 0;
 
     return {
-      key: isInCurrentMonth ? day : `${offset > 0 ? 'next' : 'prev'}-${day}`,
+      key: isCurrentMonth ? day : `${offset > 0 ? 'next' : 'prev'}-${day}`,
       id: `${y}-${m}-${day}`,
+
       day,
-      date: dateObj,
-      isCurrentMonth: isInCurrentMonth,
+      date,
+
+      isCurrentMonth,
       isPrevMonth: offset < 0,
       isNextMonth: offset > 0,
-      isToday: isSameDate(dateObj, today.value),
-      isDisabled: constraints?.isDisabled(dateObj) ?? false,
-      isSelected: selection.isSelected(dateObj),
-      isInRange: selection.isInRange(dateObj),
-      isRangeStart: selection.isRangeStart(dateObj),
-      isRangeEnd: selection.isRangeEnd(dateObj),
+
+      isToday: isSameDate(date, today.value),
+      isDisabled: constraints?.isDisabled(date) ?? false,
+
+      isSelected: selection.isSelected(date),
+      isInRange: selection.isInRange(date),
+      isRangeStart: selection.isRangeStart(date),
+      isRangeEnd: selection.isRangeEnd(date),
     };
-  };
+  }
 
   const prevMonthDays = computed(() => {
-    const firstDayWeekday = adapter.value.getWeekday?.(year.value, month.value, 1) ?? 0;
+    const weekday = adapter.value.getWeekday?.(year.value, month.value, 1) ?? 0;
 
-    if (firstDayWeekday === 0) return [];
+    if (weekday === 0) return [];
 
     const { y, m } = resolveMonthYear(-1);
-    const totalPrevDays = adapter.value.getDaysInMonth(y, m);
+    const totalDays = adapter.value.getDaysInMonth(y, m);
 
-    return Array.from({ length: firstDayWeekday }, (_, i) =>
-      createDayMeta(totalPrevDays - (firstDayWeekday - 1 - i), -1),
+    return Array.from({ length: weekday }, (_, i) =>
+      createDayMeta(totalDays - (weekday - 1 - i), -1),
     );
   });
 
   const currentMonthDays = computed(() => {
-    const total = adapter.value.getDaysInMonth(year.value, month.value);
-    return Array.from({ length: total }, (_, i) => createDayMeta(i + 1));
+    const totalDays = adapter.value.getDaysInMonth(year.value, month.value);
+    return Array.from({ length: totalDays }, (_, i) => createDayMeta(i + 1));
   });
 
   const nextMonthDays = computed(() => {
-    const used = prevMonthDays.value.length + currentMonthDays.value.length;
-    const remaining = CALENDAR_CONFIG.TOTAL_CELLS - used;
+    const filled = prevMonthDays.value.length + currentMonthDays.value.length;
 
-    return remaining <= 0
-      ? []
-      : Array.from({ length: remaining }, (_, i) => createDayMeta(i + 1, 1));
+    const remaining = CALENDAR_CONFIG.TOTAL_CELLS - filled;
+
+    return remaining > 0
+      ? Array.from({ length: remaining }, (_, i) => createDayMeta(i + 1, 1))
+      : [];
   });
 
   const days = computed(() => [
@@ -104,17 +104,34 @@ export function useCalendarGrid(options) {
   ]);
 
   const weeksCount = computed(() => Math.ceil(days.value.length / CALENDAR_CONFIG.DAYS_IN_WEEK));
-  const weeks = computed(() => {
-    const result = [];
-    for (let i = 0; i < days.value.length; i += CALENDAR_CONFIG.DAYS_IN_WEEK) {
-      result.push(days.value.slice(i, i + CALENDAR_CONFIG.DAYS_IN_WEEK));
-    }
-    return result;
-  });
+
+  const weeks = computed(() => chunk(days.value, CALENDAR_CONFIG.DAYS_IN_WEEK));
 
   return {
     days,
     weeks,
     weeksCount,
   };
+}
+
+function syncLocale(locale, i18n) {
+  if (!locale) return;
+
+  watch(
+    () => locale.value,
+    (value) => {
+      if (value) {
+        i18n.setLocale(value);
+      }
+    },
+    { immediate: true },
+  );
+}
+
+function chunk(array, size) {
+  const result = [];
+  for (let i = 0; i < array.length; i += size) {
+    result.push(array.slice(i, i + size));
+  }
+  return result;
 }

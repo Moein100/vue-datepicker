@@ -210,21 +210,11 @@ export function getAvailableLocales() {
   return Object.values(LOCALE_DEFINITIONS);
 }
 
-/**
- * Get month names from date-fns locale
- * @param {string} localeCode - Locale code (jalali, gregorian, hijri, chinese)
- * @returns {string[]} Array of month names
- */
 export function getMonthNamesFromPackage(localeCode) {
   const locale = LOCALE_DEFINITIONS[localeCode];
   return locale?.months || [];
 }
 
-/**
- * Get weekday names from date-fns locale
- * @param {string} localeCode - Locale code (jalali, gregorian, hijri, chinese)
- * @returns {string[]} Array of weekday names
- */
 export function getWeekdayNamesFromPackage(localeCode) {
   const locale = LOCALE_DEFINITIONS[localeCode];
   return locale?.weekdays || [];

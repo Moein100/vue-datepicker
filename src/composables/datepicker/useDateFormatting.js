@@ -5,7 +5,6 @@ import { formatDateRange, formatMultipleDates, formatSingleDate } from '@/utils/
 
 /**
  * Composable for formatting dates based on mode and locale.
- * Provides reactive formatted date, font family, and locale/number system info.
  *
  * @param {import('vue').Ref<Date|Date[]|{start: Date, end: Date}>} value - Reactive date value to format.
  * @param {Object} [options] - Configuration options.

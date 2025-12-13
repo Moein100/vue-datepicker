@@ -10,14 +10,11 @@ A comprehensive, feature-rich Vue 3 datepicker component with support for Jalali
 
 ```vue
 <script setup>
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 </script>
 
 <template>
-  <DatepickerHeadless
-    v-model="date"
-    :font-config="{ jalali: 'Vazir', gregorian: 'Roboto' }"
-  >
+  <DatepickerHeadless v-model="date" :font-config="{ jalali: 'Vazir', gregorian: 'Roboto' }">
     <template #default="{ open, formattedDate, fontFamily }">
       <input :value="formattedDate" :style="{ fontFamily }" @click="open" />
     </template>
@@ -26,6 +23,7 @@ import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 ```
 
 **What makes this special:**
+
 - 🪶 **Ultra Lightweight** - Only **24KB gzipped** (one of the smallest Vue datepickers!)
 - 🎨 **Headless Architecture** - Full UI control via scoped slots
 - 🔤 **Custom Font Support** - Built-in font configuration for any locale
@@ -74,10 +72,10 @@ The datepicker uses a **headless architecture** - you control the trigger UI com
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const selectedDate = ref(null);
+  const selectedDate = ref(null);
 </script>
 
 <template>
@@ -100,8 +98,8 @@ For quick implementation with a pre-styled input, the package also exports a `Da
 
 ```vue
 <script setup>
-import { DatepickerInput } from '@mahlaparvaz/vue-datepicker';
-// That's it! No CSS imports, no v-model required
+  import { DatepickerInput } from '@mahlaparvaz/vue-datepicker';
+  // That's it! No CSS imports, no v-model required
 </script>
 
 <template>
@@ -117,10 +115,10 @@ If you need to access the selected date externally:
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const selectedDate = ref(null);
+  const selectedDate = ref(null);
 </script>
 
 <template>
@@ -141,7 +139,7 @@ const selectedDate = ref(null);
 
 ```vue
 <script setup>
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 </script>
 
 <template>
@@ -166,29 +164,23 @@ Fonts are **NOT included** in the bundle by default to keep the package lightwei
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const date = ref(null);
+  const date = ref(null);
 
-const customFonts = {
-  jalali: 'Vazir, IRANYekan, sans-serif',
-  gregorian: 'Roboto, Arial, sans-serif',
-  hijri: 'Amiri, serif',
-  chinese: 'Noto Sans SC, sans-serif'
-};
+  const customFonts = {
+    jalali: 'Vazir, IRANYekan, sans-serif',
+    gregorian: 'Roboto, Arial, sans-serif',
+    hijri: 'Amiri, serif',
+    chinese: 'Noto Sans SC, sans-serif',
+  };
 </script>
 
 <template>
-  <DatepickerHeadless
-    v-model="date"
-    :font-config="customFonts"
-  >
+  <DatepickerHeadless v-model="date" :font-config="customFonts">
     <template #default="{ open, formattedDate, fontFamily }">
-      <button
-        @click="open"
-        :style="{ fontFamily }"
-      >
+      <button @click="open" :style="{ fontFamily }">
         {{ formattedDate || 'Select Date' }}
       </button>
     </template>
@@ -204,10 +196,16 @@ Add fonts from a CDN in your HTML:
 <!-- In your index.html -->
 <head>
   <!-- For Persian (Jalali/Hijri) -->
-  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
+  <link
+    href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css"
+    rel="stylesheet"
+  />
 
   <!-- For other languages -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
 </head>
 ```
 
@@ -238,10 +236,10 @@ The datepicker provides **two powerful and flexible ways** to customize its appe
 
 ### 🎯 Quick Overview
 
-| Method | Use Case | Scope | Priority |
-|--------|----------|-------|----------|
-| **Global CSS Variables** | App-wide consistent styling | All datepickers | Low (overridden by theme prop) |
-| **Theme Prop** | Per-instance customization | Single datepicker | High (overrides CSS variables) |
+| Method                   | Use Case                    | Scope             | Priority                       |
+| ------------------------ | --------------------------- | ----------------- | ------------------------------ |
+| **Global CSS Variables** | App-wide consistent styling | All datepickers   | Low (overridden by theme prop) |
+| **Theme Prop**           | Per-instance customization  | Single datepicker | High (overrides CSS variables) |
 
 ---
 
@@ -258,7 +256,7 @@ Create a CSS file with your custom theme:
 :root {
   /* Primary Colors */
   --datepicker-primary-600: #c2185b;
-  --datepicker-primary-500: #e91e63;  /* Main primary color */
+  --datepicker-primary-500: #e91e63; /* Main primary color */
   --datepicker-primary-400: #f06292;
   --datepicker-primary-300: #f48fb1;
   --datepicker-primary-200: #f8bbd0;
@@ -266,7 +264,7 @@ Create a CSS file with your custom theme:
   /* Gray/Background Colors */
   --datepicker-gray-300: #616161;
   --datepicker-gray-200: #e0e0e0;
-  --datepicker-gray-100: #f5f5f5;  /* Main background */
+  --datepicker-gray-100: #f5f5f5; /* Main background */
   --datepicker-gray-50: #fafafa;
 
   /* Text Colors */
@@ -274,30 +272,30 @@ Create a CSS file with your custom theme:
   --datepicker-white: #ffffff;
 
   /* Dimensions */
-  --datepicker-width: 400px;          /* Datepicker width */
-  --datepicker-day-size: 40px;        /* Day cell size */
-  --datepicker-button-height: 28px;   /* Button height */
-  --datepicker-weekday-height: 20px;  /* Weekday header height */
+  --datepicker-width: 400px; /* Datepicker width */
+  --datepicker-day-size: 40px; /* Day cell size */
+  --datepicker-button-height: 28px; /* Button height */
+  --datepicker-weekday-height: 20px; /* Weekday header height */
   --datepicker-years-max-height: 280px; /* Year list max height */
 
   /* Border Radius */
   --datepicker-radius-4: 4px;
-  --datepicker-radius-8: 12px;        /* Medium radius */
-  --datepicker-radius-10: 16px;       /* Large radius */
+  --datepicker-radius-8: 12px; /* Medium radius */
+  --datepicker-radius-10: 16px; /* Large radius */
   --datepicker-radius-12: 20px;
 
   /* Spacing */
   --datepicker-spacing-4: 4px;
   --datepicker-spacing-8: 8px;
   --datepicker-spacing-12: 12px;
-  --datepicker-spacing-16: 20px;      /* Main spacing */
+  --datepicker-spacing-16: 20px; /* Main spacing */
   --datepicker-spacing-20: 24px;
   --datepicker-spacing-24: 28px;
 
   /* Font Sizes */
   --datepicker-font-size-10: 11px;
   --datepicker-font-size-12: 13px;
-  --datepicker-font-size-14: 15px;    /* Main font size */
+  --datepicker-font-size-14: 15px; /* Main font size */
   --datepicker-font-size-16: 17px;
 
   /* Font Weights */
@@ -306,7 +304,7 @@ Create a CSS file with your custom theme:
   --datepicker-font-weight-semibold: 600;
 
   /* Grid */
-  --datepicker-grid-columns: 7;       /* Days of week */
+  --datepicker-grid-columns: 7; /* Days of week */
   --datepicker-grid-gap: 16px;
   --datepicker-grid-column-gap: 0;
 
@@ -369,74 +367,74 @@ Now all datepickers in your app will use your custom theme:
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const customTheme = ref({
-  colors: {
-    primary: '#e91e63',           // Main color
-    primaryDark: '#c2185b',       // Hover/active states
-    primaryLight: '#f06292',      // Light variants
-    primaryLighter: '#f48fb1',    // Lighter variants
-    primaryLightest: '#f8bbd0',   // Lightest variants
-    gray: '#616161',              // Dark text
-    grayLight: '#e0e0e0',         // Borders
-    grayLighter: '#f5f5f5',       // Background
-    grayLightest: '#fafafa',      // Lightest background
-    textPrimary: '#1a1a1a',       // Primary text color
-    white: '#ffffff'              // White color
-  },
-  dimensions: {
-    width: '400px',               // Datepicker width
-    daySize: '40px',              // Day cell size
-    buttonHeight: '28px',         // Button height
-    weekdayHeight: '20px'         // Weekday header height
-  },
-  radius: {
-    small: '4px',                 // Small elements
-    medium: '12px',               // Medium elements
-    large: '16px',                // Large elements (days)
-    xlarge: '20px'                // Extra large
-  },
-  spacing: {
-    xs: '4px',                    // Extra small
-    sm: '8px',                    // Small
-    md: '12px',                   // Medium
-    lg: '20px',                   // Large (main spacing)
-    xl: '24px',                   // Extra large
-    xxl: '28px'                   // Double extra large
-  },
-  fontSize: {
-    xs: '11px',                   // Extra small text
-    sm: '13px',                   // Small text
-    md: '15px',                   // Normal text
-    lg: '17px'                    // Large text
-  },
-  fontWeight: {
-    normal: '400',                // Normal weight
-    medium: '500',                // Medium weight
-    semibold: '600'               // Bold weight
-  },
-  grid: {
-    columns: '7',                 // Days of week
-    gap: '16px',                  // Gap between cells
-    columnGap: '0'                // Column gap
-  },
-  transitions: {
-    duration: '0.2s',             // Animation duration
-    timing: 'ease-in-out'         // Animation timing
-  },
-  range: {
-    gradientStart: 'rgba(233, 30, 99, 0.15)',  // Range start color
-    gradientEnd: '#f8bbd0'                      // Range end color
-  },
-  scrollbar: {
-    width: '3px',                 // Scrollbar width
-    thumbHeight: '48px',          // Thumb height
-    trackColor: '#f8bbd0',        // Track color
-    thumbColor: '#f06292'         // Thumb color
-  }
-});
+  const customTheme = ref({
+    colors: {
+      primary: '#e91e63', // Main color
+      primaryDark: '#c2185b', // Hover/active states
+      primaryLight: '#f06292', // Light variants
+      primaryLighter: '#f48fb1', // Lighter variants
+      primaryLightest: '#f8bbd0', // Lightest variants
+      gray: '#616161', // Dark text
+      grayLight: '#e0e0e0', // Borders
+      grayLighter: '#f5f5f5', // Background
+      grayLightest: '#fafafa', // Lightest background
+      textPrimary: '#1a1a1a', // Primary text color
+      white: '#ffffff', // White color
+    },
+    dimensions: {
+      width: '400px', // Datepicker width
+      daySize: '40px', // Day cell size
+      buttonHeight: '28px', // Button height
+      weekdayHeight: '20px', // Weekday header height
+    },
+    radius: {
+      small: '4px', // Small elements
+      medium: '12px', // Medium elements
+      large: '16px', // Large elements (days)
+      xlarge: '20px', // Extra large
+    },
+    spacing: {
+      xs: '4px', // Extra small
+      sm: '8px', // Small
+      md: '12px', // Medium
+      lg: '20px', // Large (main spacing)
+      xl: '24px', // Extra large
+      xxl: '28px', // Double extra large
+    },
+    fontSize: {
+      xs: '11px', // Extra small text
+      sm: '13px', // Small text
+      md: '15px', // Normal text
+      lg: '17px', // Large text
+    },
+    fontWeight: {
+      normal: '400', // Normal weight
+      medium: '500', // Medium weight
+      semibold: '600', // Bold weight
+    },
+    grid: {
+      columns: '7', // Days of week
+      gap: '16px', // Gap between cells
+      columnGap: '0', // Column gap
+    },
+    transitions: {
+      duration: '0.2s', // Animation duration
+      timing: 'ease-in-out', // Animation timing
+    },
+    range: {
+      gradientStart: 'rgba(233, 30, 99, 0.15)', // Range start color
+      gradientEnd: '#f8bbd0', // Range end color
+    },
+    scrollbar: {
+      width: '3px', // Scrollbar width
+      thumbHeight: '48px', // Thumb height
+      trackColor: '#f8bbd0', // Track color
+      thumbColor: '#f06292', // Thumb color
+    },
+  });
 </script>
 
 <template>
@@ -454,29 +452,29 @@ You don't need to specify all properties - only override what you want:
 
 ```vue
 <script setup>
-// Simple pink theme - only change colors
-const pinkTheme = {
-  colors: {
-    primary: '#e91e63',
-    primaryDark: '#c2185b'
-  }
-};
+  // Simple pink theme - only change colors
+  const pinkTheme = {
+    colors: {
+      primary: '#e91e63',
+      primaryDark: '#c2185b',
+    },
+  };
 
-// Larger datepicker - only change dimensions
-const largeTheme = {
-  dimensions: {
-    width: '450px',
-    daySize: '48px'
-  }
-};
+  // Larger datepicker - only change dimensions
+  const largeTheme = {
+    dimensions: {
+      width: '450px',
+      daySize: '48px',
+    },
+  };
 
-// More rounded corners - only change radius
-const roundedTheme = {
-  radius: {
-    medium: '16px',
-    large: '20px'
-  }
-};
+  // More rounded corners - only change radius
+  const roundedTheme = {
+    radius: {
+      medium: '16px',
+      large: '20px',
+    },
+  };
 </script>
 
 <template>
@@ -549,11 +547,11 @@ const roundedTheme = {
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const isDark = ref(false);
-const date = ref(null);
+  const isDark = ref(false);
+  const date = ref(null);
 </script>
 
 <template>
@@ -572,39 +570,39 @@ const date = ref(null);
 
 ```vue
 <script setup>
-import { ref, computed } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref, computed } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const isDarkMode = ref(false);
+  const isDarkMode = ref(false);
 
-const lightTheme = {
-  colors: {
-    primary: '#2f7bf5',
-    grayLighter: '#ffffff',
-    grayLight: '#f5f5f5',
-    gray: '#5a5a5a',
-    textPrimary: '#1a1a1a'
-  }
-};
+  const lightTheme = {
+    colors: {
+      primary: '#2f7bf5',
+      grayLighter: '#ffffff',
+      grayLight: '#f5f5f5',
+      gray: '#5a5a5a',
+      textPrimary: '#1a1a1a',
+    },
+  };
 
-const darkTheme = {
-  colors: {
-    primary: '#84b3fe',
-    grayLighter: '#1e1e1e',
-    grayLight: '#2a2a2a',
-    grayLightest: '#2e2e2e',
-    gray: '#e0e0e0',
-    textPrimary: '#ffffff',
-    white: '#1a1a1a'
-  }
-};
+  const darkTheme = {
+    colors: {
+      primary: '#84b3fe',
+      grayLighter: '#1e1e1e',
+      grayLight: '#2a2a2a',
+      grayLightest: '#2e2e2e',
+      gray: '#e0e0e0',
+      textPrimary: '#ffffff',
+      white: '#1a1a1a',
+    },
+  };
 
-// Reactive theme that switches based on isDarkMode
-const currentTheme = computed(() => isDarkMode.value ? darkTheme : lightTheme);
+  // Reactive theme that switches based on isDarkMode
+  const currentTheme = computed(() => (isDarkMode.value ? darkTheme : lightTheme));
 
-const toggleDarkMode = () => {
-  isDarkMode.value = !isDarkMode.value;
-};
+  const toggleDarkMode = () => {
+    isDarkMode.value = !isDarkMode.value;
+  };
 </script>
 
 <template>
@@ -630,33 +628,33 @@ Use different themes for different datepickers in the same app:
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const blueTheme = {
-  colors: {
-    primary: '#2196f3',
-    primaryDark: '#1976d2'
-  }
-};
+  const blueTheme = {
+    colors: {
+      primary: '#2196f3',
+      primaryDark: '#1976d2',
+    },
+  };
 
-const greenTheme = {
-  colors: {
-    primary: '#4caf50',
-    primaryDark: '#388e3c'
-  }
-};
+  const greenTheme = {
+    colors: {
+      primary: '#4caf50',
+      primaryDark: '#388e3c',
+    },
+  };
 
-const orangeTheme = {
-  colors: {
-    primary: '#ff9800',
-    primaryDark: '#f57c00'
-  }
-};
+  const orangeTheme = {
+    colors: {
+      primary: '#ff9800',
+      primaryDark: '#f57c00',
+    },
+  };
 
-const startDate = ref(null);
-const endDate = ref(null);
-const eventDate = ref(null);
+  const startDate = ref(null);
+  const endDate = ref(null);
+  const eventDate = ref(null);
 </script>
 
 <template>
@@ -698,40 +696,40 @@ const eventDate = ref(null);
 
 ### 📋 Complete Theme Properties Reference
 
-| Category | Property | CSS Variable | Default | Description |
-|----------|----------|--------------|---------|-------------|
-| **Colors** | `colors.primary` | `--datepicker-primary-500` | `#2f7bf5` | Main primary color |
-| | `colors.primaryDark` | `--datepicker-primary-600` | `#2471eb` | Darker shade for hover |
-| | `colors.primaryLight` | `--datepicker-primary-400` | `#2d89e9` | Lighter shade |
-| | `colors.primaryLighter` | `--datepicker-primary-300` | `#84b3fe` | Even lighter |
-| | `colors.primaryLightest` | `--datepicker-primary-200` | `#cee0fc` | Lightest shade |
-| | `colors.gray` | `--datepicker-gray-300` | `#5a5a5a` | Dark gray text |
-| | `colors.grayLight` | `--datepicker-gray-200` | `#dadce5` | Light gray borders |
-| | `colors.grayLighter` | `--datepicker-gray-100` | `#f6f8ff` | Background color |
-| | `colors.grayLightest` | `--datepicker-gray-50` | `#fafafa` | Lightest background |
-| | `colors.textPrimary` | `--datepicker-text-primary` | `#f4f4f4` | Primary text |
-| | `colors.white` | `--datepicker-white` | `#fff` | White color |
-| **Dimensions** | `dimensions.width` | `--datepicker-width` | `360px` | Datepicker width |
-| | `dimensions.daySize` | `--datepicker-day-size` | `32px` | Day cell size |
-| | `dimensions.buttonHeight` | `--datepicker-button-height` | `24px` | Button height |
-| | `dimensions.weekdayHeight` | `--datepicker-weekday-height` | `16px` | Weekday height |
-| **Radius** | `radius.small` | `--datepicker-radius-4` | `4px` | Small radius |
-| | `radius.medium` | `--datepicker-radius-8` | `8px` | Medium radius |
-| | `radius.large` | `--datepicker-radius-10` | `10px` | Large radius |
-| | `radius.xlarge` | `--datepicker-radius-12` | `12px` | XL radius |
-| **Spacing** | `spacing.xs` | `--datepicker-spacing-4` | `4px` | Extra small |
-| | `spacing.sm` | `--datepicker-spacing-8` | `8px` | Small |
-| | `spacing.md` | `--datepicker-spacing-12` | `12px` | Medium |
-| | `spacing.lg` | `--datepicker-spacing-16` | `16px` | Large |
-| | `spacing.xl` | `--datepicker-spacing-20` | `20px` | Extra large |
-| | `spacing.xxl` | `--datepicker-spacing-24` | `24px` | XXL |
-| **Font Size** | `fontSize.xs` | `--datepicker-font-size-10` | `10px` | Extra small |
-| | `fontSize.sm` | `--datepicker-font-size-12` | `12px` | Small |
-| | `fontSize.md` | `--datepicker-font-size-14` | `14px` | Medium |
-| | `fontSize.lg` | `--datepicker-font-size-16` | `16px` | Large |
-| **Font Weight** | `fontWeight.normal` | `--datepicker-font-weight-normal` | `400` | Normal |
-| | `fontWeight.medium` | `--datepicker-font-weight-medium` | `500` | Medium |
-| | `fontWeight.semibold` | `--datepicker-font-weight-semibold` | `600` | Semibold |
+| Category        | Property                   | CSS Variable                        | Default   | Description            |
+| --------------- | -------------------------- | ----------------------------------- | --------- | ---------------------- |
+| **Colors**      | `colors.primary`           | `--datepicker-primary-500`          | `#2f7bf5` | Main primary color     |
+|                 | `colors.primaryDark`       | `--datepicker-primary-600`          | `#2471eb` | Darker shade for hover |
+|                 | `colors.primaryLight`      | `--datepicker-primary-400`          | `#2d89e9` | Lighter shade          |
+|                 | `colors.primaryLighter`    | `--datepicker-primary-300`          | `#84b3fe` | Even lighter           |
+|                 | `colors.primaryLightest`   | `--datepicker-primary-200`          | `#cee0fc` | Lightest shade         |
+|                 | `colors.gray`              | `--datepicker-gray-300`             | `#5a5a5a` | Dark gray text         |
+|                 | `colors.grayLight`         | `--datepicker-gray-200`             | `#dadce5` | Light gray borders     |
+|                 | `colors.grayLighter`       | `--datepicker-gray-100`             | `#f6f8ff` | Background color       |
+|                 | `colors.grayLightest`      | `--datepicker-gray-50`              | `#fafafa` | Lightest background    |
+|                 | `colors.textPrimary`       | `--datepicker-text-primary`         | `#f4f4f4` | Primary text           |
+|                 | `colors.white`             | `--datepicker-white`                | `#fff`    | White color            |
+| **Dimensions**  | `dimensions.width`         | `--datepicker-width`                | `360px`   | Datepicker width       |
+|                 | `dimensions.daySize`       | `--datepicker-day-size`             | `32px`    | Day cell size          |
+|                 | `dimensions.buttonHeight`  | `--datepicker-button-height`        | `24px`    | Button height          |
+|                 | `dimensions.weekdayHeight` | `--datepicker-weekday-height`       | `16px`    | Weekday height         |
+| **Radius**      | `radius.small`             | `--datepicker-radius-4`             | `4px`     | Small radius           |
+|                 | `radius.medium`            | `--datepicker-radius-8`             | `8px`     | Medium radius          |
+|                 | `radius.large`             | `--datepicker-radius-10`            | `10px`    | Large radius           |
+|                 | `radius.xlarge`            | `--datepicker-radius-12`            | `12px`    | XL radius              |
+| **Spacing**     | `spacing.xs`               | `--datepicker-spacing-4`            | `4px`     | Extra small            |
+|                 | `spacing.sm`               | `--datepicker-spacing-8`            | `8px`     | Small                  |
+|                 | `spacing.md`               | `--datepicker-spacing-12`           | `12px`    | Medium                 |
+|                 | `spacing.lg`               | `--datepicker-spacing-16`           | `16px`    | Large                  |
+|                 | `spacing.xl`               | `--datepicker-spacing-20`           | `20px`    | Extra large            |
+|                 | `spacing.xxl`              | `--datepicker-spacing-24`           | `24px`    | XXL                    |
+| **Font Size**   | `fontSize.xs`              | `--datepicker-font-size-10`         | `10px`    | Extra small            |
+|                 | `fontSize.sm`              | `--datepicker-font-size-12`         | `12px`    | Small                  |
+|                 | `fontSize.md`              | `--datepicker-font-size-14`         | `14px`    | Medium                 |
+|                 | `fontSize.lg`              | `--datepicker-font-size-16`         | `16px`    | Large                  |
+| **Font Weight** | `fontWeight.normal`        | `--datepicker-font-weight-normal`   | `400`     | Normal                 |
+|                 | `fontWeight.medium`        | `--datepicker-font-weight-medium`   | `500`     | Medium                 |
+|                 | `fontWeight.semibold`      | `--datepicker-font-weight-semibold` | `600`     | Semibold               |
 
 ---
 
@@ -748,11 +746,13 @@ const eventDate = ref(null);
 ### 🔍 Troubleshooting
 
 **Theme not applying?**
+
 - Make sure you're using `:theme` (with colon) not `theme`
 - Check that theme object property names are correct
 - Verify CSS variables are properly imported
 
 **Global CSS not working?**
+
 - Import your theme CSS file after the datepicker styles
 - Use `:root` selector for global scope
 - Check CSS variable names match exactly
@@ -763,12 +763,13 @@ const eventDate = ref(null);
 
 One of the smallest Vue datepicker packages available:
 
-| Format | Size | Gzipped |
-|--------|------|---------|
+| Format    | Size   | Gzipped   |
+| --------- | ------ | --------- |
 | ES Module | 109 KB | **24 KB** |
-| UMD | 76 KB | **18 KB** |
+| UMD       | 76 KB  | **18 KB** |
 
 **How we keep it small:**
+
 - 🚫 No fonts included by default (you provide your own)
 - ⚡ Tree-shakeable ES modules
 - 🗜️ Aggressive minification with Terser
@@ -781,33 +782,29 @@ The `DatepickerHeadless` component provides complete UI flexibility. You control
 
 ### Available Slot Props
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `open` | `Function` | Opens the datepicker overlay |
-| `close` | `Function` | Closes the datepicker overlay |
-| `toggle` | `Function` | Toggles the datepicker overlay |
-| `formattedDate` | `String` | Formatted date string for display |
-| `fontFamily` | `String` | Current font family based on calendar type and fontConfig |
-| `isOpen` | `Boolean` | Whether the datepicker is currently open |
+| Prop            | Type       | Description                                               |
+| --------------- | ---------- | --------------------------------------------------------- |
+| `open`          | `Function` | Opens the datepicker overlay                              |
+| `close`         | `Function` | Closes the datepicker overlay                             |
+| `toggle`        | `Function` | Toggles the datepicker overlay                            |
+| `formattedDate` | `String`   | Formatted date string for display                         |
+| `fontFamily`    | `String`   | Current font family based on calendar type and fontConfig |
+| `isOpen`        | `Boolean`  | Whether the datepicker is currently open                  |
 
 ### Custom Button Trigger
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const date = ref(null);
+  const date = ref(null);
 </script>
 
 <template>
   <DatepickerHeadless v-model="date" locale="fa">
     <template #default="{ open, formattedDate, fontFamily }">
-      <button
-        @click="open"
-        :style="{ fontFamily }"
-        class="custom-button"
-      >
+      <button @click="open" :style="{ fontFamily }" class="custom-button">
         📅 {{ formattedDate || 'انتخاب تاریخ' }}
       </button>
     </template>
@@ -845,13 +842,13 @@ const date = ref(null);
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const form = ref({
-  startDate: null,
-  endDate: null
-});
+  const form = ref({
+    startDate: null,
+    endDate: null,
+  });
 </script>
 
 <template>
@@ -895,17 +892,13 @@ const form = ref({
 
 ```vue
 <script setup>
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 </script>
 
 <template>
   <DatepickerHeadless mode="single" locale="en">
     <template #default="{ open, formattedDate }">
-      <input
-        :value="formattedDate"
-        @click="open"
-        placeholder="Select a date"
-      />
+      <input :value="formattedDate" @click="open" placeholder="Select a date" />
     </template>
   </DatepickerHeadless>
 </template>
@@ -915,7 +908,7 @@ import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
 ```vue
 <script setup>
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 </script>
 
 <template>
@@ -933,15 +926,16 @@ import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 ```
 
 **With v-model:**
+
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const dateRange = ref({
-  start: null,
-  end: null
-});
+  const dateRange = ref({
+    start: null,
+    end: null,
+  });
 </script>
 
 <template>
@@ -962,39 +956,32 @@ const dateRange = ref({
 
 ```vue
 <script setup>
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 </script>
 
 <template>
   <DatepickerHeadless mode="multiple">
     <template #default="{ open, formattedDate }">
-      <input
-        :value="formattedDate"
-        @click="open"
-        placeholder="Select multiple dates"
-      />
+      <input :value="formattedDate" @click="open" placeholder="Select multiple dates" />
     </template>
   </DatepickerHeadless>
 </template>
 ```
 
 **With v-model:**
+
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const multipleDates = ref([]);
+  const multipleDates = ref([]);
 </script>
 
 <template>
   <DatepickerHeadless v-model="multipleDates" mode="multiple">
     <template #default="{ open, formattedDate }">
-      <input
-        :value="formattedDate"
-        @click="open"
-        placeholder="Select multiple dates"
-      />
+      <input :value="formattedDate" @click="open" placeholder="Select multiple dates" />
     </template>
   </DatepickerHeadless>
 </template>
@@ -1004,15 +991,11 @@ const multipleDates = ref([]);
 
 ```vue
 <script setup>
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 </script>
 
 <template>
-  <DatepickerHeadless
-    :enable-time="true"
-    :time-format="24"
-    locale="fa"
-  >
+  <DatepickerHeadless :enable-time="true" :time-format="24" locale="fa">
     <template #default="{ open, formattedDate, fontFamily }">
       <input
         :value="formattedDate"
@@ -1029,15 +1012,11 @@ import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
 ```vue
 <script setup>
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 </script>
 
 <template>
-  <DatepickerHeadless
-    :years-before="10"
-    :years-after="5"
-    locale="fa"
-  >
+  <DatepickerHeadless :years-before="10" :years-after="5" locale="fa">
     <template #default="{ open, formattedDate, fontFamily }">
       <input
         :value="formattedDate"
@@ -1060,18 +1039,15 @@ Returns the raw date object:
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const selectedDate = ref(null);
-// Output: { jy: 1403, jm: 9, jd: 18, hour: 14, minute: 30 }
+  const selectedDate = ref(null);
+  // Output: { jy: 1403, jm: 9, jd: 18, hour: 14, minute: 30 }
 </script>
 
 <template>
-  <DatepickerHeadless
-    v-model="selectedDate"
-    output-format="object"
-  >
+  <DatepickerHeadless v-model="selectedDate" output-format="object">
     <template #default="{ open, formattedDate }">
       <input :value="formattedDate" @click="open" />
     </template>
@@ -1085,18 +1061,15 @@ Returns JavaScript timestamp in milliseconds:
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const selectedDate = ref(null);
-// Output: 1702905000000
+  const selectedDate = ref(null);
+  // Output: 1702905000000
 </script>
 
 <template>
-  <DatepickerHeadless
-    v-model="selectedDate"
-    output-format="timestamp"
-  >
+  <DatepickerHeadless v-model="selectedDate" output-format="timestamp">
     <template #default="{ open, formattedDate }">
       <input :value="formattedDate" @click="open" />
     </template>
@@ -1110,18 +1083,15 @@ Returns Unix timestamp in seconds:
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const selectedDate = ref(null);
-// Output: 1702905000
+  const selectedDate = ref(null);
+  // Output: 1702905000
 </script>
 
 <template>
-  <DatepickerHeadless
-    v-model="selectedDate"
-    output-format="unix"
-  >
+  <DatepickerHeadless v-model="selectedDate" output-format="unix">
     <template #default="{ open, formattedDate }">
       <input :value="formattedDate" @click="open" />
     </template>
@@ -1135,18 +1105,15 @@ Returns ISO 8601 formatted string:
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const selectedDate = ref(null);
-// Output: "2023-12-18T14:30:00.000Z"
+  const selectedDate = ref(null);
+  // Output: "2023-12-18T14:30:00.000Z"
 </script>
 
 <template>
-  <DatepickerHeadless
-    v-model="selectedDate"
-    output-format="iso"
-  >
+  <DatepickerHeadless v-model="selectedDate" output-format="iso">
     <template #default="{ open, formattedDate }">
       <input :value="formattedDate" @click="open" />
     </template>
@@ -1160,11 +1127,11 @@ Returns a custom formatted string:
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const selectedDate = ref(null);
-// Output: "1403-09-18 14:30"
+  const selectedDate = ref(null);
+  // Output: "1403-09-18 14:30"
 </script>
 
 <template>
@@ -1181,6 +1148,7 @@ const selectedDate = ref(null);
 ```
 
 Available format tokens:
+
 - `YYYY` - 4-digit year
 - `YY` - 2-digit year
 - `MM` - 2-digit month
@@ -1198,29 +1166,26 @@ Use a custom function for complete control:
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const selectedDate = ref(null);
+  const selectedDate = ref(null);
 
-const customFormatter = (date) => {
-  if (!date) return null;
+  const customFormatter = (date) => {
+    if (!date) return null;
 
-  // For range mode
-  if (date.start && date.end) {
-    return `From ${date.start.jy}/${date.start.jm}/${date.start.jd} to ${date.end.jy}/${date.end.jm}/${date.end.jd}`;
-  }
+    // For range mode
+    if (date.start && date.end) {
+      return `From ${date.start.jy}/${date.start.jm}/${date.start.jd} to ${date.end.jy}/${date.end.jm}/${date.end.jd}`;
+    }
 
-  // For single mode
-  return `Custom: ${date.jy}-${date.jm}-${date.jd}`;
-};
+    // For single mode
+    return `Custom: ${date.jy}-${date.jm}-${date.jd}`;
+  };
 </script>
 
 <template>
-  <DatepickerHeadless
-    v-model="selectedDate"
-    :output-format="customFormatter"
-  >
+  <DatepickerHeadless v-model="selectedDate" :output-format="customFormatter">
     <template #default="{ open, formattedDate }">
       <input :value="formattedDate" @click="open" />
     </template>
@@ -1234,17 +1199,14 @@ For better type safety and code clarity:
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless, { OUTPUT_FORMATS } from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless, { OUTPUT_FORMATS } from '@mahlaparvaz/vue-datepicker';
 
-const selectedDate = ref(null);
+  const selectedDate = ref(null);
 </script>
 
 <template>
-  <DatepickerHeadless
-    v-model="selectedDate"
-    :output-format="OUTPUT_FORMATS.TIMESTAMP"
-  >
+  <DatepickerHeadless v-model="selectedDate" :output-format="OUTPUT_FORMATS.TIMESTAMP">
     <template #default="{ open, formattedDate }">
       <input :value="formattedDate" @click="open" />
     </template>
@@ -1253,6 +1215,7 @@ const selectedDate = ref(null);
 ```
 
 Available constants:
+
 - `OUTPUT_FORMATS.OBJECT` - Default object format
 - `OUTPUT_FORMATS.TIMESTAMP` - JavaScript timestamp (ms)
 - `OUTPUT_FORMATS.UNIX` - Unix timestamp (seconds)
@@ -1263,7 +1226,7 @@ Available constants:
 
 ```vue
 <script setup>
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 </script>
 
 <template>
@@ -1282,12 +1245,7 @@ import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
   <!-- Chinese calendar -->
   <DatepickerHeadless locale="zh">
     <template #default="{ open, formattedDate, fontFamily }">
-      <input
-        :value="formattedDate"
-        :style="{ fontFamily }"
-        @click="open"
-        placeholder="选择日期"
-      />
+      <input :value="formattedDate" :style="{ fontFamily }" @click="open" placeholder="选择日期" />
     </template>
   </DatepickerHeadless>
 </template>
@@ -1297,39 +1255,40 @@ import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `modelValue` | `Object` | `null` | **Optional** - The selected date(s). Component works without v-model using internal state |
-| `mode` | `'single' \| 'range' \| 'multiple'` | `'single'` | Selection mode |
-| `locale` | `String` | `null` | **Optional** - Calendar locale (`'fa'`, `'en'`, `'ar'`, `'zh'`). Auto-detected from store if not provided |
-| `placeholder` | `String` | Auto | Input placeholder text |
-| `format` | `String` | `'YYYY/MM/DD'` | Date display format in the input field |
-| `fontConfig` | `Object` | `null` | Custom font configuration for different calendar types. Example: `{ jalali: 'Vazir', gregorian: 'Roboto', hijri: 'Amiri', chinese: 'Noto Sans SC' }` |
-| `theme` | `Object` | `null` | Custom theme configuration for styling. Example: `{ colors: { primary: '#e91e63' }, dimensions: { width: '400px' } }`. See [THEMING.md](./THEMING.md) |
-| `enableTime` | `Boolean` | `false` | Enable time selection |
-| `timeFormat` | `Number \| String` | `24` | Time format (12 or 24) |
-| `yearsBefore` | `Number` | `50` | Number of years before current year |
-| `yearsAfter` | `Number` | `50` | Number of years after current year |
-| `enableLocaleSelector` | `Boolean` | `true` | Show locale selector in picker |
-| `minDate` | `Date \| String` | `null` | Minimum selectable date |
-| `maxDate` | `Date \| String` | `null` | Maximum selectable date |
-| `outputFormat` | `String \| Function` | `'object'` | Output format: `'object'`, `'timestamp'`, `'unix'`, `'iso'`, `'string'`, or custom function |
-| `outputStringFormat` | `String` | `'YYYY/MM/DD'` | String format when `outputFormat` is `'string'` |
+| Prop                   | Type                                | Default        | Description                                                                                                                                           |
+| ---------------------- | ----------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue`           | `Object`                            | `null`         | **Optional** - The selected date(s). Component works without v-model using internal state                                                             |
+| `mode`                 | `'single' \| 'range' \| 'multiple'` | `'single'`     | Selection mode                                                                                                                                        |
+| `locale`               | `String`                            | `null`         | **Optional** - Calendar locale (`'fa'`, `'en'`, `'ar'`, `'zh'`). Auto-detected from store if not provided                                             |
+| `placeholder`          | `String`                            | Auto           | Input placeholder text                                                                                                                                |
+| `format`               | `String`                            | `'YYYY/MM/DD'` | Date display format in the input field                                                                                                                |
+| `fontConfig`           | `Object`                            | `null`         | Custom font configuration for different calendar types. Example: `{ jalali: 'Vazir', gregorian: 'Roboto', hijri: 'Amiri', chinese: 'Noto Sans SC' }`  |
+| `theme`                | `Object`                            | `null`         | Custom theme configuration for styling. Example: `{ colors: { primary: '#e91e63' }, dimensions: { width: '400px' } }`. See [THEMING.md](./THEMING.md) |
+| `enableTime`           | `Boolean`                           | `false`        | Enable time selection                                                                                                                                 |
+| `timeFormat`           | `Number \| String`                  | `24`           | Time format (12 or 24)                                                                                                                                |
+| `yearsBefore`          | `Number`                            | `50`           | Number of years before current year                                                                                                                   |
+| `yearsAfter`           | `Number`                            | `50`           | Number of years after current year                                                                                                                    |
+| `enableLocaleSelector` | `Boolean`                           | `true`         | Show locale selector in picker                                                                                                                        |
+| `minDate`              | `Date \| String`                    | `null`         | Minimum selectable date                                                                                                                               |
+| `maxDate`              | `Date \| String`                    | `null`         | Maximum selectable date                                                                                                                               |
+| `outputFormat`         | `String \| Function`                | `'object'`     | Output format: `'object'`, `'timestamp'`, `'unix'`, `'iso'`, `'string'`, or custom function                                                           |
+| `outputStringFormat`   | `String`                            | `'YYYY/MM/DD'` | String format when `outputFormat` is `'string'`                                                                                                       |
 
 ### Events
 
-| Event | Payload | Description |
-|-------|---------|-------------|
-| `update:modelValue` | `Object` | Emitted when date changes |
-| `update:locale` | `String` | Emitted when locale changes |
-| `change` | `Object` | Emitted on date change |
-| `confirm` | `Object` | Emitted when date is confirmed |
-| `open` | - | Emitted when picker opens |
-| `close` | - | Emitted when picker closes |
+| Event               | Payload  | Description                    |
+| ------------------- | -------- | ------------------------------ |
+| `update:modelValue` | `Object` | Emitted when date changes      |
+| `update:locale`     | `String` | Emitted when locale changes    |
+| `change`            | `Object` | Emitted on date change         |
+| `confirm`           | `Object` | Emitted when date is confirmed |
+| `open`              | -        | Emitted when picker opens      |
+| `close`             | -        | Emitted when picker closes     |
 
 ### Date Object Format
 
 #### Jalali Calendar
+
 ```javascript
 {
   jy: 1403,      // Jalali year
@@ -1341,6 +1300,7 @@ import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 ```
 
 #### Gregorian/Hijri/Chinese Calendars
+
 ```javascript
 {
   year: 2024,    // Year
@@ -1352,6 +1312,7 @@ import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 ```
 
 #### Range Mode
+
 ```javascript
 {
   start: { jy: 1403, jm: 9, jd: 1 },
@@ -1360,12 +1321,13 @@ import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 ```
 
 #### Multiple Mode
+
 ```javascript
 [
   { jy: 1403, jm: 9, jd: 1 },
   { jy: 1403, jm: 9, jd: 5 },
-  { jy: 1403, jm: 9, jd: 10 }
-]
+  { jy: 1403, jm: 9, jd: 10 },
+];
 ```
 
 ## 🎨 Customization
@@ -1381,8 +1343,8 @@ import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
 ```vue
 <script setup>
-// Just import - styles are automatically included!
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  // Just import - styles are automatically included!
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 </script>
 
 <template>
@@ -1480,12 +1442,12 @@ The datepicker uses CSS custom properties for easy theming:
 
 ### Supported Locales
 
-| Locale | Calendar Type | Direction | Number System |
-|--------|--------------|-----------|---------------|
-| `fa` | Jalali (Persian) | RTL | Persian |
-| `en` | Gregorian | LTR | Western |
-| `ar` | Hijri | RTL | Arabic |
-| `zh` | Chinese | LTR | Chinese |
+| Locale | Calendar Type    | Direction | Number System |
+| ------ | ---------------- | --------- | ------------- |
+| `fa`   | Jalali (Persian) | RTL       | Persian       |
+| `en`   | Gregorian        | LTR       | Western       |
+| `ar`   | Hijri            | RTL       | Arabic        |
+| `zh`   | Chinese          | LTR       | Chinese       |
 
 ### Dynamic Locale Switching
 
@@ -1493,7 +1455,7 @@ Users can switch between calendars using the built-in locale selector (enabled b
 
 ```vue
 <script setup>
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 </script>
 
 <template>
@@ -1509,11 +1471,11 @@ Or control it programmatically:
 
 ```vue
 <script setup>
-import { ref } from 'vue';
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import { ref } from 'vue';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-const currentLocale = ref('fa');
-const selectedDate = ref(null);
+  const currentLocale = ref('fa');
+  const selectedDate = ref(null);
 </script>
 
 <template>
@@ -1542,36 +1504,31 @@ The datepicker maintains its own internal state, so **v-model is completely opti
 
 ```vue
 <script setup>
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 
-// No ref needed! Component manages state internally
-// User can select dates and see them in the input
+  // No ref needed! Component manages state internally
+  // User can select dates and see them in the input
 </script>
 
 <template>
   <!-- Works perfectly without v-model -->
-  <DatepickerHeadless
-    mode="range"
-    :enable-time="true"
-  >
+  <DatepickerHeadless mode="range" :enable-time="true">
     <template #default="{ open, formattedDate }">
-      <input
-        :value="formattedDate"
-        @click="open"
-        placeholder="Select dates"
-      />
+      <input :value="formattedDate" @click="open" placeholder="Select dates" />
     </template>
   </DatepickerHeadless>
 </template>
 ```
 
 **When to use v-model:**
+
 - ✅ When you need to access/manipulate selected dates externally
 - ✅ When you want to set an initial value programmatically
 - ✅ When you need to sync the value with other components
 - ❌ NOT required for basic date selection functionality
 
 **How it works:**
+
 - Component uses internal `ref` to store selected date(s)
 - Falls back to prop value if `v-model` is provided
 - Emits `update:modelValue` for optional parent synchronization
@@ -1582,24 +1539,20 @@ import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 The datepicker automatically validates dates based on the selected calendar:
 
 ```javascript
-import {
-  isValidJalaaliDate,
-  isValidGregorianDate,
-  isValidDate
-} from '@mahlaparvaz/vue-datepicker';
+import { isValidJalaaliDate, isValidGregorianDate, isValidDate } from '@mahlaparvaz/vue-datepicker';
 
 // Jalali validation
-isValidJalaaliDate(1403, 9, 15);  // true
+isValidJalaaliDate(1403, 9, 15); // true
 isValidJalaaliDate(1403, 13, 15); // false (invalid month)
-isValidJalaaliDate(1403, 9, 32);  // false (invalid day)
+isValidJalaaliDate(1403, 9, 32); // false (invalid day)
 
 // Gregorian validation
-isValidGregorianDate(2024, 12, 7);  // true
-isValidGregorianDate(2024, 2, 30);  // false (invalid day for February)
-isValidGregorianDate(2024, 2, 29);  // true (leap year)
+isValidGregorianDate(2024, 12, 7); // true
+isValidGregorianDate(2024, 2, 30); // false (invalid day for February)
+isValidGregorianDate(2024, 2, 29); // true (leap year)
 
 // Universal validation
-isValidDate({ jy: 1403, jm: 9, jd: 15 });     // true
+isValidDate({ jy: 1403, jm: 9, jd: 15 }); // true
 isValidDate({ year: 2024, month: 12, day: 7 }); // true
 ```
 
@@ -1660,7 +1613,7 @@ npm run format
 
 ```vue
 <script setup>
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 </script>
 
 <template>
@@ -1681,7 +1634,7 @@ Use the `fontConfig` prop to specify fonts for each calendar type:
 <DatepickerHeadless
   :font-config="{
     jalali: 'Vazir, sans-serif',
-    gregorian: 'Roboto, Arial, sans-serif'
+    gregorian: 'Roboto, Arial, sans-serif',
   }"
 >
   <template #default="{ open, formattedDate, fontFamily }">
@@ -1699,6 +1652,7 @@ To keep the bundle size small! Including all font files would add ~200KB to the 
 ### What's the bundle size?
 
 One of the smallest Vue datepicker packages:
+
 - **ES Module**: 109 KB (24 KB gzipped)
 - **UMD**: 76 KB (18 KB gzipped)
 
@@ -1722,6 +1676,7 @@ For a pre-styled option, use `DatepickerInput`.
 You have two options:
 
 **Option 1: Global CSS Variables (affects all datepickers)**
+
 ```css
 /* In your global CSS */
 :root {
@@ -1732,6 +1687,7 @@ You have two options:
 ```
 
 **Option 2: Theme Prop (per-instance)**
+
 ```vue
 <DatepickerHeadless :theme="{ colors: { primary: '#e91e63' } }">
   <!-- ... -->
@@ -1746,13 +1702,13 @@ Yes! Use either CSS variables with media queries or the theme prop:
 
 ```vue
 <script setup>
-const darkTheme = {
-  colors: {
-    primary: '#84b3fe',
-    grayLighter: '#1e1e1e',
-    textPrimary: '#ffffff'
-  }
-};
+  const darkTheme = {
+    colors: {
+      primary: '#84b3fe',
+      grayLighter: '#1e1e1e',
+      textPrimary: '#ffffff',
+    },
+  };
 </script>
 
 <template>
@@ -1785,7 +1741,7 @@ Yes! Enable the locale selector:
 
 ```vue
 <script setup>
-import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
+  import DatepickerHeadless from '@mahlaparvaz/vue-datepicker';
 </script>
 
 <template>

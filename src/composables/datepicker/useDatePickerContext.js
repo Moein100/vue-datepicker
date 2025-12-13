@@ -1,11 +1,12 @@
 import { provide, inject, computed, readonly } from 'vue';
+
 import { useNavigation } from './useNavigation.js';
 import { createSelection } from './useSelection.js';
 import { useTimeSelection } from './useTimeSelection.js';
 import { useDateConstraints } from './useDateConstraints.js';
 import { useCalendarGrid } from './useCalendarGrid.js';
-import { localeManager } from '../../locales/localeManager.js';
-import { SELECTION_MODES } from '../../constants/datepicker.js';
+import { SELECTION_MODES } from '@/constants/datepicker.js';
+import { localeManager } from '@/locales/localeManager.js';
 
 const DatePickerContextKey = Symbol('DatePickerContext');
 
@@ -49,15 +50,13 @@ export function createDatePickerContext(options = {}) {
     const dateValue = selection.getValue();
     if (!dateValue) return null;
 
-    if (time && enableTime) {
-      const timeValue = time.getValue() || { hour: 0, minute: 0 };
-      return addTimeToValue(dateValue, timeValue, mode);
-    }
+    if (!enableTime || !time) return dateValue;
 
-    return dateValue;
+    const timeValue = time.getValue() || { hour: 0, minute: 0 };
+    return mergeTime(dateValue, timeValue, mode);
   }
 
-  function addTimeToValue(dateValue, timeValue, mode) {
+  function mergeTime(dateValue, timeValue, mode) {
     if (mode === SELECTION_MODES.RANGE) {
       return {
         start: { ...dateValue.start, ...timeValue },
@@ -78,17 +77,17 @@ export function createDatePickerContext(options = {}) {
     time?.reset();
   }
 
-  function selectDay(dayObj) {
-    if (dayObj.isDisabled) return;
+  function selectDay(day) {
+    if (day.isDisabled) return;
 
-    if (dayObj.isPrevMonth || dayObj.isNextMonth) {
-      navigation.goToDate(dayObj.date);
+    if (day.isPrevMonth || day.isNextMonth) {
+      navigation.goToDate(day.date);
     }
 
-    selection.select(dayObj.date);
+    selection.select(day.date);
   }
 
-  const context = {
+  const datePickerContext = {
     navigation,
     selection,
     time,
@@ -103,13 +102,19 @@ export function createDatePickerContext(options = {}) {
     reset,
   };
 
-  provide(DatePickerContextKey, context);
+  provide(DatePickerContextKey, datePickerContext);
 
-  return context;
+  return datePickerContext;
 }
 
-export function useDatePickerContext  () {
-  return inject(DatePickerContextKey);
+export function useDatePickerContext() {
+  const context = inject(DatePickerContextKey);
+
+  if (!context) {
+    throw new Error('useDatePickerContext must be used inside createDatePickerContext()');
+  }
+
+  return context;
 }
 
 export function hasDatePickerContext() {
