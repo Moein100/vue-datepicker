@@ -22,7 +22,7 @@ function cssInjectedByJsPlugin() {
           cssCode += chunk.source.toString();
         }
       }
-      cssFiles.forEach(file => delete bundle[file]);
+      cssFiles.forEach((file) => delete bundle[file]);
       if (!cssCode) return;
 
       const escapedCss = cssCode
@@ -59,7 +59,7 @@ export default defineConfig({
   plugins: [
     vue(),
     cssInjectedByJsPlugin(),
-    visualizer({ filename: 'dist/stats.html', gzipSize: true, brotliSize: true })
+    visualizer({ filename: 'dist/stats.html', gzipSize: true, brotliSize: true }),
   ],
   resolve: {
     alias: {
@@ -78,24 +78,35 @@ export default defineConfig({
     },
   },
   build: {
+    target: 'esnext',
     lib: {
       entry: resolve(__dirname, 'src/index.js'),
       name: 'VueDatepicker',
-      fileName: format => `vue-datepicker.${format}.js`,
+      fileName: (format) => `vue-datepicker.${format}.js`,
     },
-    minify: 'esbuild', 
+    minify: 'esbuild',
     sourcemap: false,
     cssCodeSplit: false,
-    assetsInlineLimit: 0, 
+    assetsInlineLimit: 0,
+    chunkSizeWarningLimit: 500,
     rollupOptions: {
-      external: ['vue'],
+      treeshake: {
+        moduleSideEffects: false,
+      },
+      external: ['vue', 'date-fns', 'date-fns-jalali', 'lunar-javascript', 'hijri-convertor'],
       output: {
-        globals: { vue: 'Vue' },
+        globals: {
+          vue: 'Vue',
+          'date-fns': 'dateFns',
+          'date-fns-jalali': 'dateFnsJalali',
+          'lunar-javascript': 'LunarJS',
+          'hijri-convertor': 'HijriConverter',
+        },
         exports: 'named',
         compact: true,
-        assetFileNames: assetInfo => {
+        assetFileNames: (assetInfo) => {
           if (assetInfo.name?.endsWith('.woff2')) {
-            return 'fonts/[name][extname]'; 
+            return 'fonts/[name][extname]';
           }
           return '[name][extname]';
         },
